@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "An opinionated Git assistant — interactive TUI and scriptable CLI",
   "type": "module",
-  "license": "PolyForm-Noncommercial-1.0.0",
+  "license": "MIT",
   "author": "Arsam Sarabi",
   "repository": {
     "type": "git",
@@ -14,9 +14,10 @@
     "url": "https://github.com/arsamsarabi/grit/issues"
   },
   "bin": {
-    "arsams-grit": "./src/index.ts"
+    "arsams-grit": "bin/arsams-grit"
   },
   "files": [
+    "bin",
     "src",
     "LICENSE",
     "README.md",

@@ -15,7 +15,7 @@ class Grit < Formula
   homepage "https://github.com/arsamsarabi/grit"
   # Update url/sha on release; for now install via npm/bun is recommended
   version "0.1.0"
-  license "PolyForm-Noncommercial-1.0.0"
+  license "MIT"
 
   depends_on "bun"
   depends_on "git"

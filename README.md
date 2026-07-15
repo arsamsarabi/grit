@@ -4,7 +4,7 @@ Opinionated Git assistant — beautiful interactive TUI and a full scriptable CL
 
 **Package:** [`@arsams/grit`](https://www.npmjs.com/package/@arsams/grit)  
 **Binary:** `arsams-grit` (alias via `init`)  
-**License:** [Polyform Noncommercial 1.0.0](./LICENSE)
+**License:** [MIT](./LICENSE)
 
 ## Install
 
@@ -129,4 +129,4 @@ The short name `grit` is already used by [GritQL](https://docs.grit.io/). This p
 
 ## License
 
-Polyform Noncommercial 1.0.0 — free for non-commercial use. See [LICENSE](./LICENSE).
+MIT — see [LICENSE](./LICENSE).
