@@ -1,8 +1,8 @@
-import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { assertGitRepo } from "@/git/client.ts";
 import { getLog } from "@/git/ops.ts";
-import { handleCancel, printError, sayEmpty } from "@/tui/prompts.ts";
+import { isBack, printError, sayEmpty, textOrBack } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type LogOptions = {
   count?: number;
@@ -12,7 +12,7 @@ export type LogOptions = {
 export async function runLog(opts: LogOptions): Promise<void> {
   await assertGitRepo();
   const count = opts.count ?? 20;
-  const entries = await getLog(undefined, count);
+  const entries = await withSpinner("Loading log…", () => getLog(undefined, count));
 
   if (entries.length === 0) {
     sayEmpty("No commits yet.");
@@ -33,12 +33,12 @@ export async function runLog(opts: LogOptions): Promise<void> {
 
 export async function runLogInteractive(): Promise<void> {
   try {
-    const n = await p.text({
+    const n = await textOrBack({
       message: "How many commits?",
       initialValue: "20",
       validate: (v) => (/^\d+$/.test(v ?? "") ? undefined : "Enter a number"),
     });
-    handleCancel(n);
+    if (isBack(n)) return;
     await runLog({ count: Number(n), oneline: true });
   } catch (err) {
     printError(err);

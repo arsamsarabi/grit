@@ -5,24 +5,20 @@ import { writeGlobalConfig } from "@/config/loader.ts";
 import type { GritConfigInput } from "@/config/schema.ts";
 import { detectShellRc, probeAlias, probeAliasCandidates, resolveBinaryPath, upsertAliasInRc } from "@/init/alias.ts";
 import { checkDeps } from "@/init/deps.ts";
+import { BACK, isBack } from "@/tui/nav.ts";
 import { pick } from "@/tui/pick.ts";
+import { confirmOrBack, textOrBack } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type InitOptions = {
   yes?: boolean;
 };
 
-function cancelIfNeeded(value: unknown): asserts value is string | boolean {
-  if (p.isCancel(value)) {
-    p.cancel("Init cancelled.");
-    process.exit(0);
-  }
-}
-
 export async function runInit(options: InitOptions = {}): Promise<void> {
   p.intro(pc.bgCyan(pc.black(" grit init ")));
   p.log.step("Grit is an opinionated Git assistant. Let's set up your machine.");
 
-  const deps = await checkDeps();
+  const deps = await withSpinner("Checking dependencies…", () => checkDeps());
   if (!deps.git.available) {
     p.log.error("git is required but was not found on PATH.");
     p.outro("Install git, then re-run: arsams-grit init");
@@ -60,7 +56,7 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
     return;
   }
 
-  const probes = await probeAliasCandidates();
+  const probes = await withSpinner("Checking PATH aliases…", () => probeAliasCandidates());
   const freePreferred = probes.find((x) => x.name === "grit" && x.free);
   const occupied = probes.filter((x) => !x.free);
 
@@ -70,83 +66,131 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
     }
   }
 
-  const aliasChoice = await pick({
-    message: "Choose a shell alias for grit",
-    options: [
-      ...ALIAS_CANDIDATES.map((name) => {
-        const probe = probes.find((x) => x.name === name);
-        const free = probe?.free ?? true;
-        return {
-          value: name,
-          label: name,
-          hint: free ? "available" : `conflict: ${probe?.ownerHint ?? "taken"}`,
-        };
-      }),
-      { value: "__custom__", label: "Custom alias…" },
-      { value: "__skip__", label: "Skip alias (use arsams-grit)" },
-    ],
-    initialValue: freePreferred ? "grit" : "g",
-  });
-  cancelIfNeeded(aliasChoice);
+  const steps = ["alias", "shell", "template", "emoji", "upstream", "editor"] as const;
+  let i = 0;
+  let aliasChoice: string = freePreferred ? "grit" : "g";
+  let template = defaultConfig.branch.template;
+  let emoji = false;
+  let upstream = defaultConfig.rebase.defaultUpstream;
+  let editor = process.env.EDITOR ?? "";
 
-  if (aliasChoice === "__custom__") {
-    const custom = await p.text({
-      message: "Alias name",
-      placeholder: "mygrit",
-      validate: (v) => (v && /^[a-zA-Z][\w-]*$/.test(v) ? undefined : "Invalid alias"),
-    });
-    cancelIfNeeded(custom);
-    alias = custom;
-    const customProbe = await probeAlias(custom);
-    if (!customProbe.free) {
-      p.log.warn(`\`${custom}\` is already on PATH (${customProbe.ownerHint}). Continuing anyway.`);
+  while (i >= 0 && i < steps.length) {
+    switch (steps[i]!) {
+      case "alias": {
+        const choice = await pick({
+          message: "Choose a shell alias for grit",
+          back: false,
+          options: [
+            ...ALIAS_CANDIDATES.map((name) => {
+              const probe = probes.find((x) => x.name === name);
+              const free = probe?.free ?? true;
+              return {
+                value: name,
+                label: name,
+                hint: free ? "available" : `conflict: ${probe?.ownerHint ?? "taken"}`,
+              };
+            }),
+            { value: "__custom__", label: "Custom alias…" },
+            { value: "__skip__", label: "Skip alias (use arsams-grit)" },
+          ],
+          initialValue: freePreferred ? "grit" : "g",
+        });
+        if (choice === BACK || (typeof choice === "symbol" && p.isCancel(choice))) {
+          p.cancel("Init cancelled.");
+          process.exit(0);
+        }
+        if (choice === "__custom__") {
+          const custom = await textOrBack({
+            message: "Alias name",
+            placeholder: "mygrit",
+            validate: (v) => (v && /^[a-zA-Z][\w-]*$/.test(v) ? undefined : "Invalid alias"),
+          });
+          if (isBack(custom)) break;
+          alias = custom;
+          const customProbe = await probeAlias(custom);
+          if (!customProbe.free) {
+            p.log.warn(`\`${custom}\` is already on PATH (${customProbe.ownerHint}). Continuing anyway.`);
+          }
+        } else if (choice === "__skip__") {
+          alias = "arsams-grit";
+        } else {
+          alias = choice as string;
+        }
+        aliasChoice = alias;
+        i++;
+        break;
+      }
+      case "shell": {
+        const rc = detectShellRc();
+        if (aliasChoice !== "arsams-grit" && rc) {
+          const shellOk = await confirmOrBack(`Add alias to ${rc}?`, true);
+          if (isBack(shellOk)) {
+            i--;
+            break;
+          }
+          writeShell = shellOk;
+        } else if (process.platform === "win32") {
+          p.log.info("On Windows, add a PATH entry or PowerShell alias for arsams-grit manually after install.");
+        }
+        i++;
+        break;
+      }
+      case "template": {
+        const t = await textOrBack({
+          message: "Default branch name template",
+          initialValue: defaultConfig.branch.template,
+          placeholder: "{type}/{ticket}-{slug}",
+        });
+        if (isBack(t)) {
+          i--;
+          break;
+        }
+        template = t;
+        i++;
+        break;
+      }
+      case "emoji": {
+        const e = await confirmOrBack("Enable emoji in commit messages?", false);
+        if (isBack(e)) {
+          i--;
+          break;
+        }
+        emoji = e;
+        i++;
+        break;
+      }
+      case "upstream": {
+        const u = await textOrBack({
+          message: "Default rebase upstream",
+          initialValue: defaultConfig.rebase.defaultUpstream,
+        });
+        if (isBack(u)) {
+          i--;
+          break;
+        }
+        upstream = u;
+        i++;
+        break;
+      }
+      case "editor": {
+        const e = await textOrBack({
+          message: "Preferred editor command (empty to use $EDITOR)",
+          initialValue: process.env.EDITOR ?? "",
+          placeholder: "code --wait",
+        });
+        if (isBack(e)) {
+          i--;
+          break;
+        }
+        editor = e;
+        i++;
+        break;
+      }
     }
-  } else if (aliasChoice === "__skip__") {
-    alias = "arsams-grit";
-  } else {
-    alias = aliasChoice;
   }
-
-  const rc = detectShellRc();
-  if (alias !== "arsams-grit" && rc) {
-    const shellOk = await p.confirm({
-      message: `Add alias to ${rc}?`,
-      initialValue: true,
-    });
-    cancelIfNeeded(shellOk);
-    writeShell = shellOk;
-  } else if (process.platform === "win32") {
-    p.log.info("On Windows, add a PATH entry or PowerShell alias for arsams-grit manually after install.");
-  }
-
-  const template = await p.text({
-    message: "Default branch name template",
-    initialValue: defaultConfig.branch.template,
-    placeholder: "{type}/{ticket}-{slug}",
-  });
-  cancelIfNeeded(template);
-
-  const emoji = await p.confirm({
-    message: "Enable emoji in commit messages?",
-    initialValue: false,
-  });
-  cancelIfNeeded(emoji);
-
-  const upstream = await p.text({
-    message: "Default rebase upstream",
-    initialValue: defaultConfig.rebase.defaultUpstream,
-  });
-  cancelIfNeeded(upstream);
-
-  const editor = await p.text({
-    message: "Preferred editor command (empty to use $EDITOR)",
-    initialValue: process.env.EDITOR ?? "",
-    placeholder: "code --wait",
-  });
-  cancelIfNeeded(editor);
 
   config = {
-    alias,
+    alias: aliasChoice,
     editor: editor || undefined,
     branch: {
       template,
@@ -170,10 +214,11 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
   writeGlobalConfig(config);
   p.log.success(`Wrote ${pc.dim("global config")}`);
 
+  const rc = detectShellRc();
   if (writeShell && rc) {
-    upsertAliasInRc(rc, alias, resolveBinaryPath());
+    upsertAliasInRc(rc, aliasChoice, resolveBinaryPath());
     p.log.success(`Updated ${rc} (reload your shell or run: source ${rc})`);
   }
 
-  p.outro(`You're set. Try: ${pc.cyan(`cd my-repo && ${alias}`)} or ${pc.cyan(`${alias} status`)}`);
+  p.outro(`You're set. Try: ${pc.cyan(`cd my-repo && ${aliasChoice}`)} or ${pc.cyan(`${aliasChoice} status`)}`);
 }

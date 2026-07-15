@@ -3,7 +3,8 @@ import pc from "picocolors";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { getLog } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrExit, handleCancel, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
+import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type CherryPickOptions = {
   hash?: string;
@@ -13,29 +14,40 @@ export type CherryPickOptions = {
 export async function runCherryPick(opts: CherryPickOptions): Promise<void> {
   await assertGitRepo();
   let hash = opts.hash;
+
   if (!hash) {
-    const entries = await getLog(undefined, 30);
-    if (entries.length === 0) {
-      sayEmpty("No commits to cherry-pick.");
-      return;
+    for (;;) {
+      const entries = await withSpinner("Loading commits…", () => getLog(undefined, 30));
+      if (entries.length === 0) {
+        sayEmpty("No commits to cherry-pick.");
+        return;
+      }
+      const choice = await pick({
+        message: "Cherry-pick commit",
+        options: entries.map((e) => ({
+          value: e.hash,
+          label: `${e.shortHash} ${e.subject}`,
+        })),
+      });
+      if (isBack(choice)) return;
+      hash = choice as string;
+      if (opts.yes) break;
+      const ok = await confirmOrBack(`Cherry-pick ${pc.cyan(hash.slice(0, 7))}?`, true);
+      if (isBack(ok)) continue;
+      if (!ok) {
+        p.log.info("Aborted.");
+        return;
+      }
+      break;
     }
-    const choice = await pick({
-      message: "Cherry-pick commit",
-      options: entries.map((e) => ({
-        value: e.hash,
-        label: `${e.shortHash} ${e.subject}`,
-      })),
-    });
-    handleCancel(choice);
-    hash = choice as string;
   } else {
     hash = requireFlag(hash, "hash");
+    if (!opts.yes && !(await confirmOrExit(`Cherry-pick ${pc.cyan(hash.slice(0, 7))}?`))) {
+      return;
+    }
   }
 
-  if (!opts.yes && !(await confirmOrExit(`Cherry-pick ${pc.cyan(hash.slice(0, 7))}?`))) {
-    return;
-  }
-  await git(["cherry-pick", hash]);
+  await withSpinner("Cherry-picking…", () => git(["cherry-pick", hash!]));
   p.log.success("Cherry-picked");
 }
 

@@ -3,6 +3,7 @@ import { getPrForBranch, isGhAvailable } from "@/gh/client.ts";
 import { assertGitRepo } from "@/git/client.ts";
 import { getStatus, lastCommit } from "@/git/ops.ts";
 import { printError } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type StatusOptions = {
   json?: boolean;
@@ -11,13 +12,13 @@ export type StatusOptions = {
 export async function runStatus(opts: StatusOptions): Promise<void> {
   try {
     await assertGitRepo();
-    const status = await getStatus();
-    const last = await lastCommit();
-
-    let pr: Awaited<ReturnType<typeof getPrForBranch>> = null;
-    if (await isGhAvailable()) {
-      pr = await getPrForBranch();
-    }
+    const { status, last, pr, ghOk } = await withSpinner("Loading status…", async () => {
+      const status = await getStatus();
+      const last = await lastCommit();
+      const ghOk = await isGhAvailable();
+      const pr = ghOk ? await getPrForBranch() : null;
+      return { status, last, pr, ghOk };
+    });
 
     const payload = {
       branch: status.branch,
@@ -54,7 +55,7 @@ export async function runStatus(opts: StatusOptions): Promise<void> {
     if (pr) {
       console.log(`${pc.bold("PR")}      #${pr.number} ${pr.title} ${pc.dim(`(${pr.state})`)}`);
       console.log(`         ${pc.underline(pr.url)}`);
-    } else if (await isGhAvailable()) {
+    } else if (ghOk) {
       console.log(`${pc.bold("PR")}      ${pc.dim("none open for this branch")}`);
     } else {
       console.log(`${pc.bold("PR")}      ${pc.dim("gh not available")}`);
