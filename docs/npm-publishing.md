@@ -1,7 +1,5 @@
 # Publishing `@arsams/grit` to npm
 
-This guide covers how releases get onto the npm registry for this project: one-time setup, day-to-day Changesets flow, Trusted Publisher (OIDC), and local emergency publishes.
-
 Package: **`@arsams/grit`**  
 Registry: https://www.npmjs.com/package/@arsams/grit  
 Repo: https://github.com/arsamsarabi/grit  
@@ -9,88 +7,19 @@ CI workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 
 ---
 
-## Mental model
-
-| Path                    | When                               | Auth                                               |
-| ----------------------- | ---------------------------------- | -------------------------------------------------- |
-| **CI (preferred)**      | Normal releases after setup        | npm Trusted Publisher (OIDC) — no long-lived token |
-| **Local `npm publish`** | First package create, or emergency | Your npm login + 2FA                               |
-
-**Provenance** (build attestation) is generated automatically on CI Trusted Publisher publishes. It is **not** enabled in `package.json`, because local `npm publish` fails with `provider: null` if provenance is forced outside CI.
-
----
-
-## One-time setup (already done for v0.1.0 basics)
-
-### 1. npm org / scope
-
-- Own the **`@arsams`** scope on npm (org or user matching that name).
-- Your account must be able to publish under that scope.
-
-### 2. First package create (local)
-
-New scoped packages often need a first interactive publish before Trusted Publisher can be attached:
-
-```bash
-cd /path/to/grit
-npm whoami
-npm publish --access public
-```
-
-Requirements:
-
-- `bin` must not point at a `.ts` file (we use [`bin/arsams-grit`](../bin/arsams-grit)).
-- Do **not** set `"provenance": true` in `publishConfig` for local publishes.
-
-### 3. Trusted Publisher on npmjs.com
-
-1. Open https://www.npmjs.com/package/@arsams/grit → **Settings** → **Trusted Publisher**.
-2. Choose **GitHub Actions**.
-3. Exact values:
-
-   | Field                | Value                                       |
-   | -------------------- | ------------------------------------------- |
-   | Organization or user | `arsamsarabi`                               |
-   | Repository           | `grit`                                      |
-   | Workflow filename    | `release.yml` (filename only)               |
-   | Environment          | blank (unless you add a GitHub Environment) |
-   | Allowed actions      | at least **`npm publish`**                  |
-
-4. Save. npm does **not** validate until the next CI publish — typos show up then.
-
-Optional harden (after a successful CI publish):
-
-- Settings → Publishing access → require 2FA and **disallow tokens**.
-
-### 4. GitHub release workflow
-
-[`.github/workflows/release.yml`](../.github/workflows/release.yml) must:
-
-- Run on GitHub-hosted runners (`ubuntu-latest`)
-- Set `permissions.id-token: write`
-- Use Node 24 + recent npm (`npm install -g npm@latest`)
-- Call Changesets without `NPM_TOKEN`
-- Set `NPM_CONFIG_PROVENANCE=true` only in CI
-
-SSH for this machine: remote should use the arsam host alias if you have multiple GitHub identities:
-
-```text
-git@github.com-arsam:arsamsarabi/grit.git
-```
-
----
-
 ## Day-to-day release (CI + Changesets)
 
 This is the normal path after Trusted Publisher works.
 
-### Step 1 — Land work on `main`
+### Step 1 — Land work (usually on a feature branch)
 
-Merge feature PRs as usual. Do **not** bump `package.json` version by hand.
+Do **not** bump `package.json` version by hand.
+
+Preferred flow: add the changeset **on the same feature branch / PR** as the code change, then merge that PR into `main`. You can also add a changeset afterward on `main`, but keeping it with the feature PR is clearer and harder to forget.
 
 ### Step 2 — Add a changeset
 
-From a clean working tree:
+From a clean working tree on the branch that contains the change (feature branch, or `main` if you already merged):
 
 ```bash
 bun run changeset
@@ -100,7 +29,7 @@ bun run changeset
 2. Choose bump: `patch` / `minor` / `major`
 3. Write a short summary (goes into the changelog)
 
-Commit and push:
+Commit and push **on that branch**:
 
 ```bash
 git add .changeset
@@ -108,9 +37,11 @@ git commit -m "chore: add changeset for <reason>"
 git push
 ```
 
+If you created it on a feature branch, open/merge the PR so the changeset lands on `main`.
+
 ### Step 3 — Version Packages PR
 
-On push to `main`, the **Release** workflow runs [`changesets/action`](https://github.com/changesets/action):
+After the changeset is on `main`, the **Release** workflow runs [`changesets/action`](https://github.com/changesets/action):
 
 - If there are pending changesets and no release commit yet, it opens or updates a **Version Packages** PR.
 - That PR bumps `package.json` / `CHANGELOG.md` and removes consumed changeset files.
@@ -194,8 +125,7 @@ Official reference: [Trusted publishing for npm packages](https://docs.npmjs.com
 
 ## Checklist: cutting a release
 
-- [ ] Changes merged to `main`
-- [ ] `bun run changeset` → commit → push
+- [ ] Code + changeset merged to `main` (changeset usually added on the feature branch)
 - [ ] Version Packages PR reviewed and merged
 - [ ] Release workflow succeeded (Actions)
 - [ ] `npm view @arsams/grit version` matches expected
