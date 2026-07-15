@@ -72,10 +72,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Homebrew requires Formula/ (capital F). Older commits tracked formula/;
+          # on Linux those are distinct paths — drop the legacy one if present.
+          if git ls-files --error-unmatch formula/grit.rb >/dev/null 2>&1; then
+            git rm -f formula/grit.rb
+          fi
           # Must `git add` first: `git diff` ignores untracked files, so a brand-new
           # Formula/grit.rb used to exit early as "already up to date" and never push.
           git add Formula/grit.rb
-          if git diff --cached --quiet Formula/grit.rb; then
+          if git diff --cached --quiet; then
             echo "Formula already up to date"
             exit 0
           fi

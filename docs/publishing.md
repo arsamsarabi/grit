@@ -146,16 +146,17 @@ Prefer CI. Never commit long-lived publish tokens.
 
 ## Troubleshooting
 
-| Symptom                                    | Likely fix                                                                                                      |
-| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `ENEEDAUTH` in Actions                     | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                               |
-| Actions cannot create PRs                  | Enable “Allow GitHub Actions to create and approve pull requests”                                               |
-| Release “does nothing”                     | No pending changeset, or Version PR not merged                                                                  |
-| Homebrew formula bump rejected on `main`   | Expected with branch protection — job opens a PR; merge it                                                      |
-| Homebrew job skipped                       | `published` was false (no npm publish that run)                                                                 |
-| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and merge the formula PR                                       |
-| `Refusing to load formula … untrusted tap` | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit` |
-| Provenance / local publish errors          | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                   |
+| Symptom                                    | Likely fix                                                                                                                                              |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ENEEDAUTH` in Actions                     | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                                                                       |
+| Actions cannot create PRs                  | Enable “Allow GitHub Actions to create and approve pull requests”                                                                                       |
+| Release “does nothing”                     | No pending changeset, or Version PR not merged                                                                                                          |
+| Homebrew formula bump rejected on `main`   | Expected with branch protection — job opens a PR; merge it                                                                                              |
+| Homebrew still installs an old version     | `main` must ship `Formula/grit.rb` (capital F) at the latest npm version; merge the bump PR, then `brew update && brew reinstall arsamsarabi/grit/grit` |
+| Homebrew job skipped                       | `published` was false (no npm publish that run)                                                                                                         |
+| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and merge the formula PR                                                                               |
+| `Refusing to load formula … untrusted tap` | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit`                                         |
+| Provenance / local publish errors          | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                                                           |
 
 ---
 
