@@ -1,6 +1,6 @@
 # grit
 
-Opinionated Git assistant — beautiful interactive TUI and a full scriptable CLI.
+Opinionated Git assistant.
 
 **Package:** [`@arsams/grit`](https://www.npmjs.com/package/@arsams/grit)  
 **Binary:** `arsams-grit` (alias via `init`)  
