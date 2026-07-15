@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.2
+
+### Patch Changes
+
+- effcf83: Homebrew formula hardening
+
 ## 0.3.1
 
 ### Patch Changes
