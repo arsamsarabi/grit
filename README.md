@@ -30,11 +30,11 @@ arsams-grit init
 ### Homebrew
 
 ```bash
-brew tap arsamsarabi/tap
-brew install grit
+brew install arsamsarabi/grit/grit
+arsams-grit --help
 ```
 
-(Requires the tap repo to publish the formula from [`formula/grit.rb`](./formula/grit.rb).)
+One command: Homebrew trusts that formula for the install. No separate `brew trust` step.
 
 ## Usage
 
@@ -128,8 +128,7 @@ Publishing (npm + Homebrew via CI): see [docs/publishing.md](./docs/publishing.m
 ### Homebrew
 
 ```bash
-brew tap arsamsarabi/grit https://github.com/arsamsarabi/grit
-brew install grit
+brew install arsamsarabi/grit/grit
 arsams-grit --help
 ```
 

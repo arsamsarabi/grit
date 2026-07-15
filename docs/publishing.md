@@ -74,7 +74,7 @@ npm view @arsams/grit version
 bunx @arsams/grit --help
 
 brew update
-brew install arsamsarabi/grit        # after tapping — see below
+brew install arsamsarabi/grit/grit
 # or: brew upgrade grit
 arsams-grit --version
 ```
@@ -83,15 +83,28 @@ arsams-grit --version
 
 ## Homebrew install (users)
 
-This repo is the tap (has `Formula/grit.rb`):
+This repo is the tap (`Formula/grit.rb`). Non-official taps are never auto-trusted by Homebrew (security model since 6.0). You cannot flag a GitHub repo as “trusted for everyone.”
+
+**Recommended — one command** (fully-qualified name trusts only that formula during install):
 
 ```bash
-brew tap arsamsarabi/grit https://github.com/arsamsarabi/grit
-brew install grit
+brew install arsamsarabi/grit/grit
 arsams-grit --help
 ```
 
-Binary name is **`arsams-grit`**. Run `arsams-grit init` to choose a shorter shell alias if you want.
+No `brew tap` / `brew trust` for end users.
+
+Optional short name after trust (admin machines, Brewfiles that pin `trusted: true`):
+
+```bash
+brew tap arsamsarabi/grit https://github.com/arsamsarabi/grit
+brew trust --formula arsamsarabi/grit/grit
+brew install grit
+```
+
+Only path to plain `brew install grit` for strangers: land the formula in [homebrew/core](https://docs.brew.sh/Acceptable-Formulae) (notability thresholds apply; self-submitted software needs ~3× higher stars/forks/watchers). Until then, use the fully-qualified install.
+
+Binary name is **`arsams-grit`**. Run `arsams-grit init` for a shorter shell alias if you want.
 
 Upgrade later:
 
@@ -131,14 +144,15 @@ Prefer CI. Never commit long-lived publish tokens.
 
 ## Troubleshooting
 
-| Symptom                             | Likely fix                                                                        |
-| ----------------------------------- | --------------------------------------------------------------------------------- |
-| `ENEEDAUTH` in Actions              | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write` |
-| Actions cannot create PRs           | Enable “Allow GitHub Actions to create and approve pull requests”                 |
-| Release “does nothing”              | No pending changeset, or Version PR not merged                                    |
-| Homebrew job skipped                | `published` was false (no npm publish that run)                                   |
-| `brew install` formula SHA mismatch | Re-run `bun run sync:homebrew` after npm publish and push `Formula/grit.rb`       |
-| Provenance / local publish errors   | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`     |
+| Symptom                                    | Likely fix                                                                                                      |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| `ENEEDAUTH` in Actions                     | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                               |
+| Actions cannot create PRs                  | Enable “Allow GitHub Actions to create and approve pull requests”                                               |
+| Release “does nothing”                     | No pending changeset, or Version PR not merged                                                                  |
+| Homebrew job skipped                       | `published` was false (no npm publish that run)                                                                 |
+| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and push `Formula/grit.rb`                                     |
+| `Refusing to load formula … untrusted tap` | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit` |
+| Provenance / local publish errors          | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                   |
 
 ---
 
