@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.0
+
+### Minor Changes
+
+- 816c064: Adds spinner and back option to menus
+
 ## 0.2.1
 
 ### Patch Changes
