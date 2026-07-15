@@ -1,17 +1,11 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { renderBranchName, slugify } from "../../config/branch-template.ts";
-import { loadConfig } from "../../config/loader.ts";
-import { assertGitRepo } from "../../git/client.ts";
-import { checkoutBranch, createBranch, deleteBranch, getBranches } from "../../git/ops.ts";
-import { pick } from "../../tui/pick.ts";
-import {
-  confirmOrExit,
-  handleCancel,
-  printError,
-  requireFlag,
-  sayEmpty,
-} from "../../tui/prompts.ts";
+import { renderBranchName, slugify } from "@/config/branch-template.ts";
+import { loadConfig } from "@/config/loader.ts";
+import { assertGitRepo } from "@/git/client.ts";
+import { checkoutBranch, createBranch, deleteBranch, getBranches } from "@/git/ops.ts";
+import { pick } from "@/tui/pick.ts";
+import { confirmOrExit, handleCancel, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
 
 export type BranchNewOptions = {
   type?: string;

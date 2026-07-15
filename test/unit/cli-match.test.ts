@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createProgram } from "../../src/cli/program.ts";
+import { createProgram } from "@/cli/program.ts";
 
 describe("cli command matching", () => {
   test("matches branch <action> with flags", () => {

@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
-import { assertGitRepo, git } from "../../git/client.ts";
-import { pick } from "../../tui/pick.ts";
-import { handleCancel, printError, sayEmpty } from "../../tui/prompts.ts";
+import { assertGitRepo, git } from "@/git/client.ts";
+import { pick } from "@/tui/pick.ts";
+import { handleCancel, printError, sayEmpty } from "@/tui/prompts.ts";
 
 export async function stashPush(message?: string): Promise<void> {
   await assertGitRepo();

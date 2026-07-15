@@ -1,9 +1,9 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { createRelease, isGhAvailable } from "../../gh/client.ts";
-import { assertGitRepo, git } from "../../git/client.ts";
-import { getLog } from "../../git/ops.ts";
-import { confirmOrExit, handleCancel, printError, requireFlag } from "../../tui/prompts.ts";
+import { createRelease, isGhAvailable } from "@/gh/client.ts";
+import { assertGitRepo, git } from "@/git/client.ts";
+import { getLog } from "@/git/ops.ts";
+import { confirmOrExit, handleCancel, printError, requireFlag } from "@/tui/prompts.ts";
 
 export type ReleaseOptions = {
   tag?: string;

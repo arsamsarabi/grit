@@ -1,8 +1,8 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
-import { defaultConfig } from "./defaults.ts";
-import { type GritConfig, type GritConfigInput, gritConfigSchema } from "./schema.ts";
+import { defaultConfig } from "@/config/defaults.ts";
+import { type GritConfig, type GritConfigInput, gritConfigSchema } from "@/config/schema.ts";
 
 export function globalConfigDir(): string {
   if (process.platform === "win32") {

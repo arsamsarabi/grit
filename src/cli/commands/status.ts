@@ -1,8 +1,8 @@
 import pc from "picocolors";
-import { getPrForBranch, isGhAvailable } from "../../gh/client.ts";
-import { assertGitRepo } from "../../git/client.ts";
-import { getStatus, lastCommit } from "../../git/ops.ts";
-import { printError } from "../../tui/prompts.ts";
+import { getPrForBranch, isGhAvailable } from "@/gh/client.ts";
+import { assertGitRepo } from "@/git/client.ts";
+import { getStatus, lastCommit } from "@/git/ops.ts";
+import { printError } from "@/tui/prompts.ts";
 
 export type StatusOptions = {
   json?: boolean;

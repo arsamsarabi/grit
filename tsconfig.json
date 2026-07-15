@@ -16,7 +16,11 @@
     "noEmit": true,
     "types": ["bun-types"],
     "lib": ["ESNext"],
-    "rootDir": "."
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]

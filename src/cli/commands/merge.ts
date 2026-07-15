@@ -1,15 +1,9 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { assertGitRepo, git } from "../../git/client.ts";
-import { getBranches } from "../../git/ops.ts";
-import { pick } from "../../tui/pick.ts";
-import {
-  confirmOrExit,
-  handleCancel,
-  printError,
-  requireFlag,
-  sayEmpty,
-} from "../../tui/prompts.ts";
+import { assertGitRepo, git } from "@/git/client.ts";
+import { getBranches } from "@/git/ops.ts";
+import { pick } from "@/tui/pick.ts";
+import { confirmOrExit, handleCancel, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
 
 export type MergeOptions = {
   branch?: string;

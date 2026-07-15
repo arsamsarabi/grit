@@ -1,11 +1,11 @@
-import { git } from "./client.ts";
+import { git } from "@/git/client.ts";
 import {
   type LogEntry,
   parseBranchList,
   parseLog,
   parsePorcelainStatus,
   type RepoStatus,
-} from "./parsers.ts";
+} from "@/git/parsers.ts";
 
 export async function getStatus(cwd?: string): Promise<RepoStatus> {
   const raw = await git(["status", "--porcelain=v1", "--branch"], { cwd });

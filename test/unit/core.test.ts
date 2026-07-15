@@ -1,8 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { extractTicket, renderBranchName, slugify } from "../../src/config/branch-template.ts";
-import { formatCommitMessage } from "../../src/config/commit-message.ts";
-import { gritConfigSchema } from "../../src/config/schema.ts";
-import { parseLog, parsePorcelainStatus } from "../../src/git/parsers.ts";
+import { extractTicket, renderBranchName, slugify } from "@/config/branch-template.ts";
+import { formatCommitMessage } from "@/config/commit-message.ts";
+import { gritConfigSchema } from "@/config/schema.ts";
+import { parseLog, parsePorcelainStatus } from "@/git/parsers.ts";
 
 describe("branch template", () => {
   test("renders type/ticket-slug", () => {

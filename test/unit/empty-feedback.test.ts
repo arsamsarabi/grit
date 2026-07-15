@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { execa } from "execa";
-import { getLog } from "../../src/git/ops.ts";
+import { getLog } from "@/git/ops.ts";
 
 describe("empty log feedback", () => {
   test("getLog returns [] for unborn repo (caller can sayEmpty)", async () => {

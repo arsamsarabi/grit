@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
-import { assertGitRepo, git } from "../../git/client.ts";
-import { pick } from "../../tui/pick.ts";
-import { handleCancel, printError, requireFlag, sayEmpty } from "../../tui/prompts.ts";
+import { assertGitRepo, git } from "@/git/client.ts";
+import { pick } from "@/tui/pick.ts";
+import { handleCancel, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
 
 export async function worktreeList(): Promise<void> {
   await assertGitRepo();

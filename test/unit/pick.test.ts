@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { DEFAULT_PICK_PLACEHOLDER, pickArgs } from "../../src/tui/pick.ts";
+import { DEFAULT_PICK_PLACEHOLDER, pickArgs } from "@/tui/pick.ts";
 
 describe("pickArgs", () => {
   test("defaults placeholder to Type to filter…", () => {

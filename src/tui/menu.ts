@@ -1,18 +1,18 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { runBranchInteractive } from "../cli/commands/branch.ts";
-import { runCherryPickInteractive } from "../cli/commands/cherry-pick.ts";
-import { runCommitInteractive } from "../cli/commands/commit.ts";
-import { runLogInteractive } from "../cli/commands/log.ts";
-import { runMergeInteractive } from "../cli/commands/merge.ts";
-import { runPrInteractive } from "../cli/commands/pr.ts";
-import { runRebaseInteractive } from "../cli/commands/rebase.ts";
-import { runReleaseInteractive } from "../cli/commands/release.ts";
-import { runStashInteractive } from "../cli/commands/stash.ts";
-import { runStatus } from "../cli/commands/status.ts";
-import { runWorktreeInteractive } from "../cli/commands/worktree.ts";
-import { pick } from "./pick.ts";
-import { handleCancel } from "./prompts.ts";
+import { runBranchInteractive } from "@/cli/commands/branch.ts";
+import { runCherryPickInteractive } from "@/cli/commands/cherry-pick.ts";
+import { runCommitInteractive } from "@/cli/commands/commit.ts";
+import { runLogInteractive } from "@/cli/commands/log.ts";
+import { runMergeInteractive } from "@/cli/commands/merge.ts";
+import { runPrInteractive } from "@/cli/commands/pr.ts";
+import { runRebaseInteractive } from "@/cli/commands/rebase.ts";
+import { runReleaseInteractive } from "@/cli/commands/release.ts";
+import { runStashInteractive } from "@/cli/commands/stash.ts";
+import { runStatus } from "@/cli/commands/status.ts";
+import { runWorktreeInteractive } from "@/cli/commands/worktree.ts";
+import { pick } from "@/tui/pick.ts";
+import { handleCancel } from "@/tui/prompts.ts";
 
 export async function runMainMenu(): Promise<void> {
   p.intro(pc.bgMagenta(pc.black(" grit ")));

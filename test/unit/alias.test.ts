@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { buildAliasBlock, SHELL_MARKER_BEGIN, upsertAliasInRc } from "../../src/init/alias.ts";
+import { buildAliasBlock, SHELL_MARKER_BEGIN, upsertAliasInRc } from "@/init/alias.ts";
 
 describe("alias shell RC", () => {
   test("upsert is idempotent", () => {

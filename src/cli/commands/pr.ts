@@ -2,13 +2,13 @@ import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { extractTicket } from "../../config/branch-template.ts";
-import { loadConfig } from "../../config/loader.ts";
-import { createPr, getPrForBranch, isGhAvailable } from "../../gh/client.ts";
-import { assertGitRepo, currentBranch } from "../../git/client.ts";
-import { getLog } from "../../git/ops.ts";
-import { pick } from "../../tui/pick.ts";
-import { confirmOrExit, handleCancel, printError } from "../../tui/prompts.ts";
+import { extractTicket } from "@/config/branch-template.ts";
+import { loadConfig } from "@/config/loader.ts";
+import { createPr, getPrForBranch, isGhAvailable } from "@/gh/client.ts";
+import { assertGitRepo, currentBranch } from "@/git/client.ts";
+import { getLog } from "@/git/ops.ts";
+import { pick } from "@/tui/pick.ts";
+import { confirmOrExit, handleCancel, printError } from "@/tui/prompts.ts";
 
 function readPrTemplate(cwd: string): string {
   const candidates = [

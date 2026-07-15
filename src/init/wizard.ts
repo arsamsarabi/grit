@@ -1,17 +1,17 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { ALIAS_CANDIDATES, DEFAULT_EMOJI_MAP, defaultConfig } from "../config/defaults.ts";
-import { writeGlobalConfig } from "../config/loader.ts";
-import type { GritConfigInput } from "../config/schema.ts";
-import { pick } from "../tui/pick.ts";
+import { ALIAS_CANDIDATES, DEFAULT_EMOJI_MAP, defaultConfig } from "@/config/defaults.ts";
+import { writeGlobalConfig } from "@/config/loader.ts";
+import type { GritConfigInput } from "@/config/schema.ts";
+import { pick } from "@/tui/pick.ts";
 import {
   detectShellRc,
   probeAlias,
   probeAliasCandidates,
   resolveBinaryPath,
   upsertAliasInRc,
-} from "./alias.ts";
-import { checkDeps } from "./deps.ts";
+} from "@/init/alias.ts";
+import { checkDeps } from "@/init/deps.ts";
 
 export type InitOptions = {
   yes?: boolean;

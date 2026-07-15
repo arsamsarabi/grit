@@ -1,10 +1,10 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { loadConfig } from "../../config/loader.ts";
-import { assertGitRepo, git } from "../../git/client.ts";
-import { push } from "../../git/ops.ts";
-import { pick } from "../../tui/pick.ts";
-import { confirmOrExit, handleCancel, printError } from "../../tui/prompts.ts";
+import { loadConfig } from "@/config/loader.ts";
+import { assertGitRepo, git } from "@/git/client.ts";
+import { push } from "@/git/ops.ts";
+import { pick } from "@/tui/pick.ts";
+import { confirmOrExit, handleCancel, printError } from "@/tui/prompts.ts";
 
 export type RebaseOptions = {
   onto?: string;

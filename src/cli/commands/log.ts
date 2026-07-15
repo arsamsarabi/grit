@@ -1,8 +1,8 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { assertGitRepo } from "../../git/client.ts";
-import { getLog } from "../../git/ops.ts";
-import { handleCancel, printError, sayEmpty } from "../../tui/prompts.ts";
+import { assertGitRepo } from "@/git/client.ts";
+import { getLog } from "@/git/ops.ts";
+import { handleCancel, printError, sayEmpty } from "@/tui/prompts.ts";
 
 export type LogOptions = {
   count?: number;

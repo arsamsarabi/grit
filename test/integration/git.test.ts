@@ -2,8 +2,8 @@ import { afterAll, beforeAll, describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { execa } from "execa";
-import { renderBranchName } from "../../src/config/branch-template.ts";
-import { commit, createBranch, getStatus, stageAll } from "../../src/git/ops.ts";
+import { renderBranchName } from "@/config/branch-template.ts";
+import { commit, createBranch, getStatus, stageAll } from "@/git/ops.ts";
 
 let repo: string;
 

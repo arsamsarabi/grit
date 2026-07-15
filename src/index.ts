@@ -1,7 +1,7 @@
 #!/usr/bin/env bun
-import { runCli } from "./cli/program.ts";
-import { runMainMenu } from "./tui/menu.ts";
-import { printError } from "./tui/prompts.ts";
+import { runCli } from "@/cli/program.ts";
+import { runMainMenu } from "@/tui/menu.ts";
+import { printError } from "@/tui/prompts.ts";
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);

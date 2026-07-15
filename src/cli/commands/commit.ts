@@ -1,12 +1,12 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
-import { extractTicket } from "../../config/branch-template.ts";
-import { formatCommitMessage } from "../../config/commit-message.ts";
-import { loadConfig } from "../../config/loader.ts";
-import { assertGitRepo, currentBranch } from "../../git/client.ts";
-import { commit, getStatus, hasStagedChanges, push, stageAll } from "../../git/ops.ts";
-import { pick } from "../../tui/pick.ts";
-import { confirmOrExit, handleCancel, printError, requireFlag } from "../../tui/prompts.ts";
+import { extractTicket } from "@/config/branch-template.ts";
+import { formatCommitMessage } from "@/config/commit-message.ts";
+import { loadConfig } from "@/config/loader.ts";
+import { assertGitRepo, currentBranch } from "@/git/client.ts";
+import { commit, getStatus, hasStagedChanges, push, stageAll } from "@/git/ops.ts";
+import { pick } from "@/tui/pick.ts";
+import { confirmOrExit, handleCancel, printError, requireFlag } from "@/tui/prompts.ts";
 
 export type CommitOptions = {
   all?: boolean;

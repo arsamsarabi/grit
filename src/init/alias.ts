@@ -3,7 +3,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import { which } from "bun";
 import { execa } from "execa";
-import { ALIAS_CANDIDATES } from "../config/defaults.ts";
+import { ALIAS_CANDIDATES } from "@/config/defaults.ts";
 
 export const SHELL_MARKER_BEGIN = "# >>> grit alias >>>";
 export const SHELL_MARKER_END = "# <<< grit alias <<<";
