@@ -57,10 +57,14 @@ async function runCommitLinear(
     emojiEnabled: config.commit.emoji.enabled,
     emojiMap: config.commit.emoji.map,
   });
-  await withSpinner("Creating commit…", () => commit(full));
+  await withSpinner("Committing (hooks may run)…", () => commit(full), {
+    successMessage: "Commit created",
+  });
   p.log.success("Committed");
   if (opts.push) {
-    await withSpinner("Pushing…", () => push({ setUpstream: true }));
+    await withSpinner("Pushing…", () => push({ setUpstream: true }), {
+      successMessage: "Pushed",
+    });
     p.log.success("Pushed");
   }
 }
@@ -189,14 +193,18 @@ async function runCommitStepped(opts: CommitOptions, config: ReturnType<typeof l
           p.log.info("Aborted.");
           return;
         }
-        await withSpinner("Creating commit…", () => commit(full));
+        await withSpinner("Committing (hooks may run)…", () => commit(full), {
+          successMessage: "Commit created",
+        });
         p.log.success("Committed");
         i++;
         break;
       }
       case "push": {
         if (opts.push === true) {
-          await withSpinner("Pushing…", () => push({ setUpstream: true }));
+          await withSpinner("Pushing…", () => push({ setUpstream: true }), {
+            successMessage: "Pushed",
+          });
           p.log.success("Pushed");
           return;
         }
@@ -207,7 +215,9 @@ async function runCommitStepped(opts: CommitOptions, config: ReturnType<typeof l
           break;
         }
         if (ok) {
-          await withSpinner("Pushing…", () => push({ setUpstream: true }));
+          await withSpinner("Pushing…", () => push({ setUpstream: true }), {
+            successMessage: "Pushed",
+          });
           p.log.success("Pushed");
         }
         return;
