@@ -89,11 +89,7 @@ export async function branchCheckout(opts: { name?: string }): Promise<void> {
   p.log.success(`Checked out ${name}`);
 }
 
-export async function branchDelete(opts: {
-  name?: string;
-  force?: boolean;
-  yes?: boolean;
-}): Promise<void> {
+export async function branchDelete(opts: { name?: string; force?: boolean; yes?: boolean }): Promise<void> {
   await assertGitRepo();
   let name = opts.name;
   if (!name) {

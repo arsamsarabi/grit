@@ -4,7 +4,7 @@ import { execa, type Options } from "execa";
 export class GhError extends Error {
   constructor(
     message: string,
-    readonly exitCode?: number,
+    readonly exitCode?: number
   ) {
     super(message);
     this.name = "GhError";
@@ -81,8 +81,7 @@ export async function createRelease(options: {
   notes: string;
   cwd?: string;
 }): Promise<string> {
-  return gh(
-    ["release", "create", options.tag, "--title", options.title, "--notes", options.notes],
-    { cwd: options.cwd },
-  );
+  return gh(["release", "create", options.tag, "--title", options.title, "--notes", options.notes], {
+    cwd: options.cwd,
+  });
 }

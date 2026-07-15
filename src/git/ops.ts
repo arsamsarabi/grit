@@ -1,11 +1,5 @@
 import { git } from "@/git/client.ts";
-import {
-  type LogEntry,
-  parseBranchList,
-  parseLog,
-  parsePorcelainStatus,
-  type RepoStatus,
-} from "@/git/parsers.ts";
+import { parseBranchList, parseLog, parsePorcelainStatus, type LogEntry, type RepoStatus } from "@/git/parsers.ts";
 
 export async function getStatus(cwd?: string): Promise<RepoStatus> {
   const raw = await git(["status", "--porcelain=v1", "--branch"], { cwd });
@@ -46,10 +40,7 @@ export async function stageAll(cwd?: string): Promise<void> {
   await git(["add", "-A"], { cwd });
 }
 
-export async function createBranch(
-  name: string,
-  options: { cwd?: string; checkout?: boolean } = {},
-): Promise<void> {
+export async function createBranch(name: string, options: { cwd?: string; checkout?: boolean } = {}): Promise<void> {
   if (options.checkout !== false) {
     await git(["checkout", "-b", name], { cwd: options.cwd });
   } else {
@@ -61,10 +52,7 @@ export async function checkoutBranch(name: string, cwd?: string): Promise<void> 
   await git(["checkout", name], { cwd });
 }
 
-export async function deleteBranch(
-  name: string,
-  options: { cwd?: string; force?: boolean } = {},
-): Promise<void> {
+export async function deleteBranch(name: string, options: { cwd?: string; force?: boolean } = {}): Promise<void> {
   await git(["branch", options.force ? "-D" : "-d", name], { cwd: options.cwd });
 }
 
@@ -72,9 +60,7 @@ export async function commit(message: string, cwd?: string): Promise<void> {
   await git(["commit", "-m", message], { cwd });
 }
 
-export async function push(
-  options: { cwd?: string; force?: boolean; setUpstream?: boolean } = {},
-): Promise<void> {
+export async function push(options: { cwd?: string; force?: boolean; setUpstream?: boolean } = {}): Promise<void> {
   const args = ["push"];
   if (options.force) args.push("--force-with-lease");
   if (options.setUpstream) args.push("-u", "origin", "HEAD");

@@ -46,9 +46,7 @@ export async function runRelease(opts: ReleaseOptions): Promise<void> {
   if (!notes) {
     const commits = await getLog(undefined, 30);
     const suggested =
-      commits.length > 0
-        ? notesFromCommits(commits.map((c) => c.subject))
-        : "## Changes\n\n(no commits yet)";
+      commits.length > 0 ? notesFromCommits(commits.map((c) => c.subject)) : "## Changes\n\n(no commits yet)";
     const n = await p.text({
       message: "Release notes",
       initialValue: suggested,

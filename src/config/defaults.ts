@@ -1,5 +1,4 @@
-import type { GritConfig } from "@/config/schema.ts";
-import { gritConfigSchema } from "@/config/schema.ts";
+import { gritConfigSchema, type GritConfig } from "@/config/schema.ts";
 
 export const defaultConfig: GritConfig = gritConfigSchema.parse({});
 

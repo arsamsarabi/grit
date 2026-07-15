@@ -99,10 +99,7 @@ export async function runCommit(opts: CommitOptions): Promise<void> {
 
   const shouldPush =
     opts.push === true ||
-    (opts.push === undefined &&
-      !opts.yes &&
-      !flagged &&
-      (await confirmOrExit("Push to remote?", false)));
+    (opts.push === undefined && !opts.yes && !flagged && (await confirmOrExit("Push to remote?", false)));
 
   if (shouldPush) {
     await push({ setUpstream: true });

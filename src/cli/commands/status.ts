@@ -28,9 +28,7 @@ export async function runStatus(opts: StatusOptions): Promise<void> {
       staged: status.staged.map((f) => f.path),
       unstaged: status.unstaged.map((f) => f.path),
       untracked: status.untracked.map((f) => f.path),
-      lastCommit: last
-        ? { hash: last.shortHash, subject: last.subject, author: last.author }
-        : null,
+      lastCommit: last ? { hash: last.shortHash, subject: last.subject, author: last.author } : null,
       pr: pr ? { number: pr.number, title: pr.title, url: pr.url, state: pr.state } : null,
     };
 
@@ -40,15 +38,13 @@ export async function runStatus(opts: StatusOptions): Promise<void> {
     }
 
     console.log(
-      `${pc.bold("Branch")}  ${pc.cyan(status.branch)}${
-        status.upstream ? pc.dim(` → ${status.upstream}`) : ""
-      }`,
+      `${pc.bold("Branch")}  ${pc.cyan(status.branch)}${status.upstream ? pc.dim(` → ${status.upstream}`) : ""}`
     );
     if (status.ahead || status.behind) {
       console.log(`         ${pc.green(`↑${status.ahead}`)} ${pc.red(`↓${status.behind}`)}`);
     }
     console.log(
-      `${pc.bold("Files")}   staged ${status.staged.length} · unstaged ${status.unstaged.length} · untracked ${status.untracked.length}`,
+      `${pc.bold("Files")}   staged ${status.staged.length} · unstaged ${status.unstaged.length} · untracked ${status.untracked.length}`
     );
     if (last) {
       console.log(`${pc.bold("Last")}    ${pc.dim(last.shortHash)} ${last.subject}`);

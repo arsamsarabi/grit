@@ -1,6 +1,6 @@
-import { describe, expect, test } from "bun:test";
 import { mkdtempSync, rmSync } from "node:fs";
 import { join } from "node:path";
+import { describe, expect, test } from "bun:test";
 import { execa } from "execa";
 import { getLog } from "@/git/ops.ts";
 

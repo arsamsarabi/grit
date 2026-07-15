@@ -4,7 +4,7 @@ export class GitError extends Error {
   constructor(
     message: string,
     readonly exitCode?: number,
-    readonly stderr?: string,
+    readonly stderr?: string
   ) {
     super(message);
     this.name = "GitError";
@@ -32,7 +32,7 @@ export async function git(args: string[], options: GitOptions = {}): Promise<str
     throw new GitError(
       `git ${args.join(" ")} failed: ${asText(result.stderr) || asText(result.stdout)}`,
       result.exitCode,
-      asText(result.stderr),
+      asText(result.stderr)
     );
   }
   return asText(result.stdout).trimEnd();

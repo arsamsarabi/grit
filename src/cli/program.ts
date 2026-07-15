@@ -1,6 +1,4 @@
 import { cac } from "cac";
-import { runInit } from "@/init/wizard.ts";
-import { printError, sayEmpty } from "@/tui/prompts.ts";
 import { branchCheckout, branchDelete, branchNew } from "@/cli/commands/branch.ts";
 import { runCherryPick } from "@/cli/commands/cherry-pick.ts";
 import { runCommit } from "@/cli/commands/commit.ts";
@@ -12,6 +10,8 @@ import { runRelease } from "@/cli/commands/release.ts";
 import { stashApply, stashList, stashPop, stashPush } from "@/cli/commands/stash.ts";
 import { runStatus } from "@/cli/commands/status.ts";
 import { worktreeAddFromFlags, worktreeList, worktreeRemove } from "@/cli/commands/worktree.ts";
+import { runInit } from "@/init/wizard.ts";
+import { printError, sayEmpty } from "@/tui/prompts.ts";
 
 const VERSION = "0.1.0";
 

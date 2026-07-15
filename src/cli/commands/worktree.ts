@@ -13,11 +13,7 @@ export async function worktreeList(): Promise<void> {
   console.log(out);
 }
 
-export async function worktreeAdd(opts: {
-  path: string;
-  branch?: string;
-  newBranch?: boolean;
-}): Promise<void> {
+export async function worktreeAdd(opts: { path: string; branch?: string; newBranch?: boolean }): Promise<void> {
   await assertGitRepo();
   const args = ["worktree", "add"];
   if (opts.branch && opts.newBranch) {
@@ -64,9 +60,7 @@ export async function runWorktreeInteractive(): Promise<void> {
         placeholder: "feat/foo",
       });
       handleCancel(branch);
-      const newBranch = branch
-        ? await p.confirm({ message: "Create new branch?", initialValue: true })
-        : false;
+      const newBranch = branch ? await p.confirm({ message: "Create new branch?", initialValue: true }) : false;
       if (branch) handleCancel(newBranch);
       await worktreeAdd({
         path: path as string,

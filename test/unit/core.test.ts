@@ -11,7 +11,7 @@ describe("branch template", () => {
         type: "feat",
         ticket: "TRF-123",
         slug: "Add Login",
-      }),
+      })
     ).toBe("feat/TRF-123-add-login");
   });
 
@@ -20,7 +20,7 @@ describe("branch template", () => {
       renderBranchName("{type}/{ticket}-{slug}", {
         type: "fix",
         slug: "typo",
-      }),
+      })
     ).toBe("fix/typo");
   });
 
@@ -35,9 +35,7 @@ describe("branch template", () => {
 
 describe("commit message", () => {
   test("formats conventional commit", () => {
-    expect(formatCommitMessage({ type: "feat", scope: "ui", summary: "add button" })).toBe(
-      "feat(ui): add button",
-    );
+    expect(formatCommitMessage({ type: "feat", scope: "ui", summary: "add button" })).toBe("feat(ui): add button");
   });
 
   test("prepends emoji when enabled", () => {
@@ -47,7 +45,7 @@ describe("commit message", () => {
         summary: "add button",
         emojiEnabled: true,
         emojiMap: { feat: "✨" },
-      }),
+      })
     ).toBe("✨ feat: add button");
   });
 
@@ -57,7 +55,7 @@ describe("commit message", () => {
         type: "fix",
         summary: "bug",
         body: "details here",
-      }),
+      })
     ).toBe("fix: bug\n\ndetails here");
   });
 });
@@ -73,12 +71,7 @@ describe("config schema", () => {
 
 describe("parsers", () => {
   test("parsePorcelainStatus", () => {
-    const raw = [
-      "## main...origin/main [ahead 1, behind 2]",
-      "M  staged.txt",
-      " M dirty.txt",
-      "?? new.txt",
-    ].join("\n");
+    const raw = ["## main...origin/main [ahead 1, behind 2]", "M  staged.txt", " M dirty.txt", "?? new.txt"].join("\n");
     const status = parsePorcelainStatus(raw, raw.split("\n")[0]);
     expect(status.branch).toBe("main");
     expect(status.upstream).toBe("origin/main");

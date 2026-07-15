@@ -13,12 +13,7 @@ export function renderBranchName(template: string, parts: BranchParts): string {
     .replaceAll("{ticket}", parts.ticket?.trim() ?? "");
 
   // Collapse empty ticket segments: feat/-slug or feat/--slug → feat/slug
-  result = result
-    .replace(/\/-+/g, "/")
-    .replace(/-+$/g, "")
-    .replace(/\/+/g, "/")
-    .replace(/^\//, "")
-    .replace(/\/$/, "");
+  result = result.replace(/\/-+/g, "/").replace(/-+$/g, "").replace(/\/+/g, "/").replace(/^\//, "").replace(/\/$/, "");
 
   // Remove dangling separators from missing ticket: type/-slug already handled;
   // also type/TICKET- when slug empty shouldn't happen (caller validates slug).

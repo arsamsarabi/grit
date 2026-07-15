@@ -3,15 +3,9 @@ import pc from "picocolors";
 import { ALIAS_CANDIDATES, DEFAULT_EMOJI_MAP, defaultConfig } from "@/config/defaults.ts";
 import { writeGlobalConfig } from "@/config/loader.ts";
 import type { GritConfigInput } from "@/config/schema.ts";
-import { pick } from "@/tui/pick.ts";
-import {
-  detectShellRc,
-  probeAlias,
-  probeAliasCandidates,
-  resolveBinaryPath,
-  upsertAliasInRc,
-} from "@/init/alias.ts";
+import { detectShellRc, probeAlias, probeAliasCandidates, resolveBinaryPath, upsertAliasInRc } from "@/init/alias.ts";
 import { checkDeps } from "@/init/deps.ts";
+import { pick } from "@/tui/pick.ts";
 
 export type InitOptions = {
   yes?: boolean;
@@ -39,7 +33,7 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
     p.log.success(`gh found${deps.gh.path ? ` (${deps.gh.path})` : ""}`);
   } else {
     p.log.warn(
-      "gh (GitHub CLI) not found. PR/release features will be unavailable until you install it: https://cli.github.com",
+      "gh (GitHub CLI) not found. PR/release features will be unavailable until you install it: https://cli.github.com"
     );
   }
 
@@ -122,9 +116,7 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
     cancelIfNeeded(shellOk);
     writeShell = shellOk;
   } else if (process.platform === "win32") {
-    p.log.info(
-      "On Windows, add a PATH entry or PowerShell alias for arsams-grit manually after install.",
-    );
+    p.log.info("On Windows, add a PATH entry or PowerShell alias for arsams-grit manually after install.");
   }
 
   const template = await p.text({

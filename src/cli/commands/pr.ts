@@ -56,13 +56,7 @@ export async function runPrCreate(opts: PrCreateOptions = {}): Promise<void> {
   if (!body) {
     const template = config.github.prTemplate ? readPrTemplate(process.cwd()) : "";
     const commitList = commits.map((c) => `- ${c.subject}`).join("\n");
-    const defaultBody = [
-      ticket ? `Refs ${ticket}` : "",
-      template,
-      "",
-      "## Commits",
-      commitList || "(no commits yet)",
-    ]
+    const defaultBody = [ticket ? `Refs ${ticket}` : "", template, "", "## Commits", commitList || "(no commits yet)"]
       .filter(Boolean)
       .join("\n");
 

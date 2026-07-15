@@ -17,7 +17,7 @@ export type RepoStatus = {
 
 export function parsePorcelainStatus(
   porcelain: string,
-  branchLine: string,
+  branchLine: string
 ): Omit<RepoStatus, "branch"> & { branch: string } {
   const staged: FileStatus[] = [];
   const unstaged: FileStatus[] = [];

@@ -69,10 +69,7 @@ export function upsertAliasInRc(rcPath: string, alias: string, binaryPath: strin
   let content = existsSync(rcPath) ? readFileSync(rcPath, "utf8") : "";
 
   if (content.includes(SHELL_MARKER_BEGIN) && content.includes(SHELL_MARKER_END)) {
-    const re = new RegExp(
-      `${escapeRegExp(SHELL_MARKER_BEGIN)}[\\s\\S]*?${escapeRegExp(SHELL_MARKER_END)}`,
-      "m",
-    );
+    const re = new RegExp(`${escapeRegExp(SHELL_MARKER_BEGIN)}[\\s\\S]*?${escapeRegExp(SHELL_MARKER_END)}`, "m");
     content = content.replace(re, block);
   } else {
     content = `${content.trimEnd()}\n\n${block}\n`;

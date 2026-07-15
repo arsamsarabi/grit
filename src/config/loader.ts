@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import { defaultConfig } from "@/config/defaults.ts";
-import { type GritConfig, type GritConfigInput, gritConfigSchema } from "@/config/schema.ts";
+import { gritConfigSchema, type GritConfig, type GritConfigInput } from "@/config/schema.ts";
 
 export function globalConfigDir(): string {
   if (process.platform === "win32") {
@@ -28,10 +28,7 @@ function readJsonFile(path: string): unknown {
   return JSON.parse(raw) as unknown;
 }
 
-function deepMerge(
-  base: Record<string, unknown>,
-  overlay: Record<string, unknown>,
-): Record<string, unknown> {
+function deepMerge(base: Record<string, unknown>, overlay: Record<string, unknown>): Record<string, unknown> {
   const out: Record<string, unknown> = { ...base };
   for (const [key, value] of Object.entries(overlay)) {
     if (
