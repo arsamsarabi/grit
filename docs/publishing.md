@@ -63,9 +63,11 @@ Auth is OIDC (Trusted Publisher). No `NPM_TOKEN`.
 When publish succeeds, the **Bump Homebrew formula** job:
 
 1. Rewrites [`Formula/grit.rb`](../Formula/grit.rb) with the new npm `url` + `sha256`
-2. Commits and pushes that bump to `main`
+2. Opens a PR (`chore/homebrew-formula-<version>`) — `main` is PR-protected, so CI cannot push the bump directly
 
-(Workflow `GITHUB_TOKEN` pushes do not re-trigger nested Release publishes.)
+Merge that PR so Homebrew installs pick up the new tarball checksum.
+
+(Workflow `GITHUB_TOKEN` pushes to the formula branch do not re-trigger nested Release publishes.)
 
 ### Step 6 — Verify
 
@@ -149,8 +151,9 @@ Prefer CI. Never commit long-lived publish tokens.
 | `ENEEDAUTH` in Actions                     | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                               |
 | Actions cannot create PRs                  | Enable “Allow GitHub Actions to create and approve pull requests”                                               |
 | Release “does nothing”                     | No pending changeset, or Version PR not merged                                                                  |
+| Homebrew formula bump rejected on `main`   | Expected with branch protection — job opens a PR; merge it                                                      |
 | Homebrew job skipped                       | `published` was false (no npm publish that run)                                                                 |
-| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and push `Formula/grit.rb`                                     |
+| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and merge the formula PR                                       |
 | `Refusing to load formula … untrusted tap` | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit` |
 | Provenance / local publish errors          | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                   |
 
@@ -161,6 +164,6 @@ Prefer CI. Never commit long-lived publish tokens.
 - [ ] Code + changeset on `main`
 - [ ] Version Packages PR merged
 - [ ] Release → npm publish succeeded
-- [ ] Homebrew formula bump commit landed
+- [ ] Homebrew formula bump PR merged
 - [ ] `npm view @arsams/grit version` OK
 - [ ] `brew upgrade grit` / fresh install OK (`arsams-grit --version`)

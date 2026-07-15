@@ -52,6 +52,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
 
@@ -64,7 +65,10 @@ jobs:
       - name: Update Formula/grit.rb from npm
         run: bun run scripts/sync-homebrew-formula.ts
 
-      - name: Commit formula bump
+      # main is PR-protected — never push the formula bump directly.
+      - name: Open formula bump PR
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
@@ -75,5 +79,18 @@ jobs:
             echo "Formula already up to date"
             exit 0
           fi
-          git commit -m "chore: bump Homebrew formula to $(node -p "require('./package.json').version")"
-          git push
+          VERSION=$(node -p "require('./package.json').version")
+          BRANCH="chore/homebrew-formula-${VERSION}"
+          git checkout -B "$BRANCH"
+          git commit -m "chore: bump Homebrew formula to ${VERSION}"
+          git push -u origin "$BRANCH" --force-with-lease
+          EXISTING=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number // empty')
+          if [ -z "$EXISTING" ]; then
+            gh pr create \
+              --title "chore: bump Homebrew formula to ${VERSION}" \
+              --body "Updates \`Formula/grit.rb\` for npm \`@arsams/grit@${VERSION}\` (url + sha256)." \
+              --base main
+          else
+            echo "PR already open: #${EXISTING}"
+            gh pr view "$EXISTING" --json url --jq .url
+          fi
