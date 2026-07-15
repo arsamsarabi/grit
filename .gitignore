@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.tmp-test-*/
+*.tgz
+.DS_Store
+.env
+.env.*
+coverage/
+*.log
+.grit-alias-test/
