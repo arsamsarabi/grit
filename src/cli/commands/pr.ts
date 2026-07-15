@@ -8,7 +8,8 @@ import { createPr, getPrForBranch, isGhAvailable } from "@/gh/client.ts";
 import { assertGitRepo, currentBranch } from "@/git/client.ts";
 import { getLog } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrExit, handleCancel, printError } from "@/tui/prompts.ts";
+import { confirmOrBack, confirmOrExit, isBack, printError, textOrBack } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 function readPrTemplate(cwd: string): string {
   const candidates = [
@@ -37,43 +38,94 @@ export async function runPrCreate(opts: PrCreateOptions = {}): Promise<void> {
 
   const config = loadConfig();
   const branch = await currentBranch();
-  const commits = await getLog(undefined, 10);
+  const commits = await withSpinner("Loading commits…", () => getLog(undefined, 10));
   const ticket = extractTicket(branch, config.branch.ticketPattern);
 
+  if (opts.title && (opts.body !== undefined || opts.yes)) {
+    const title = opts.title;
+    const body = opts.body ?? "";
+    if (!opts.yes && !(await confirmOrExit(`Create PR: ${pc.cyan(title)}?`))) return;
+    const url = await withSpinner("Creating pull request…", () => createPr({ title, body, draft: opts.draft }));
+    p.log.success(url);
+    return;
+  }
+
   let title = opts.title;
-  if (!title) {
-    const defaultTitle = commits[0]?.subject ?? branch;
-    const t = await p.text({
-      message: "PR title",
-      initialValue: defaultTitle,
-      validate: (v) => (v?.trim() ? undefined : "Required"),
-    });
-    handleCancel(t);
-    title = t as string;
-  }
-
   let body = opts.body;
-  if (!body) {
-    const template = config.github.prTemplate ? readPrTemplate(process.cwd()) : "";
-    const commitList = commits.map((c) => `- ${c.subject}`).join("\n");
-    const defaultBody = [ticket ? `Refs ${ticket}` : "", template, "", "## Commits", commitList || "(no commits yet)"]
-      .filter(Boolean)
-      .join("\n");
-
-    const b = await p.text({
-      message: "PR body",
-      initialValue: defaultBody,
-    });
-    handleCancel(b);
-    body = b as string;
+  let i = 0;
+  const steps = ["title", "body", "confirm"] as const;
+  while (i >= 0 && i < steps.length) {
+    switch (steps[i]!) {
+      case "title": {
+        if (opts.title) {
+          title = opts.title;
+          i++;
+          break;
+        }
+        const defaultTitle = commits[0]?.subject ?? branch;
+        const t = await textOrBack({
+          message: "PR title",
+          initialValue: defaultTitle,
+          validate: (v) => (v?.trim() ? undefined : "Required"),
+        });
+        if (isBack(t)) return;
+        title = t;
+        i++;
+        break;
+      }
+      case "body": {
+        if (opts.body !== undefined) {
+          body = opts.body;
+          i++;
+          break;
+        }
+        const template = config.github.prTemplate ? readPrTemplate(process.cwd()) : "";
+        const commitList = commits.map((c) => `- ${c.subject}`).join("\n");
+        const defaultBody = [
+          ticket ? `Refs ${ticket}` : "",
+          template,
+          "",
+          "## Commits",
+          commitList || "(no commits yet)",
+        ]
+          .filter(Boolean)
+          .join("\n");
+        const b = await textOrBack({
+          message: "PR body",
+          initialValue: defaultBody,
+        });
+        if (isBack(b)) {
+          i--;
+          if (i < 0) return;
+          break;
+        }
+        body = b;
+        i++;
+        break;
+      }
+      case "confirm": {
+        if (opts.yes) {
+          i++;
+          break;
+        }
+        const ok = await confirmOrBack(`Create PR: ${pc.cyan(title!)}?`, true);
+        if (isBack(ok)) {
+          i--;
+          break;
+        }
+        if (!ok) {
+          p.log.info("Aborted.");
+          return;
+        }
+        i++;
+        break;
+      }
+    }
   }
 
-  if (!opts.yes && !(await confirmOrExit(`Create PR: ${pc.cyan(title)}?`))) return;
-  const url = await createPr({
-    title,
-    body: body ?? "",
-    draft: opts.draft,
-  });
+  const url = await withSpinner("Creating pull request…", () =>
+    createPr({ title: title!, body: body ?? "", draft: opts.draft })
+  );
   p.log.success(url);
 }
 
@@ -82,7 +134,7 @@ export async function runPrStatus(): Promise<void> {
   if (!(await isGhAvailable())) {
     throw new Error("gh is required for PR commands.");
   }
-  const pr = await getPrForBranch();
+  const pr = await withSpinner("Loading PR…", () => getPrForBranch());
   if (!pr) {
     console.log(pc.dim("No open PR for this branch."));
     return;
@@ -100,7 +152,7 @@ export async function runPrInteractive(): Promise<void> {
         { value: "status", label: "Status" },
       ],
     });
-    handleCancel(action);
+    if (isBack(action)) return;
     if (action === "create") await runPrCreate({});
     else await runPrStatus();
   } catch (err) {

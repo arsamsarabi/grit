@@ -6,7 +6,8 @@ import { loadConfig } from "@/config/loader.ts";
 import { assertGitRepo, currentBranch } from "@/git/client.ts";
 import { commit, getStatus, hasStagedChanges, push, stageAll } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrExit, handleCancel, printError, requireFlag } from "@/tui/prompts.ts";
+import { confirmOrBack, isBack, printError, requireFlag, textOrBack } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type CommitOptions = {
   all?: boolean;
@@ -21,89 +22,197 @@ export type CommitOptions = {
 export async function runCommit(opts: CommitOptions): Promise<void> {
   await assertGitRepo();
   const config = loadConfig();
-  const status = await getStatus();
   const flagged = Boolean(opts.type && opts.message);
 
-  let staged = await hasStagedChanges();
-  if (!staged) {
-    if (opts.all || opts.yes || flagged) {
-      await stageAll();
-      staged = true;
-    } else if (
-      status.unstaged.length + status.untracked.length > 0 &&
-      (await confirmOrExit("Nothing staged. Stage all changes?", true))
-    ) {
-      await stageAll();
-      staged = true;
-    }
+  if (flagged || opts.yes) {
+    await runCommitLinear(opts, config, flagged);
+    return;
   }
 
+  await runCommitStepped(opts, config);
+}
+
+async function runCommitLinear(
+  opts: CommitOptions,
+  config: ReturnType<typeof loadConfig>,
+  flagged: boolean
+): Promise<void> {
+  await withSpinner("Reading status…", () => getStatus());
+  if (!(await hasStagedChanges())) {
+    if (opts.all || opts.yes || flagged) {
+      await withSpinner("Staging all changes…", () => stageAll());
+    }
+  }
   if (!(await hasStagedChanges())) {
     throw new Error("Nothing to commit.");
   }
 
-  const type =
-    opts.type ??
-    ((await (async () => {
-      const c = await pick({
-        message: "Commit type",
-        options: config.commit.types.map((t) => ({ value: t, label: t })),
-      });
-      handleCancel(c);
-      return c as string;
-    })()) as string);
-
-  let scope = opts.scope;
-  if (scope === undefined && !opts.message) {
-    const s = await p.text({ message: "Scope (optional)", placeholder: "ui" });
-    handleCancel(s);
-    scope = (s as string) || undefined;
-  }
-
-  let summary = opts.message;
-  if (!summary) {
-    const s = await p.text({
-      message: "Commit summary",
-      validate: (v) => (v?.trim() ? undefined : "Required"),
-    });
-    handleCancel(s);
-    summary = s as string;
-  }
-
-  let body = opts.body;
-  if (body === undefined && !opts.message) {
-    const branch = await currentBranch();
-    const ticket = extractTicket(branch, config.branch.ticketPattern);
-    const b = await p.text({
-      message: "Body (optional)",
-      placeholder: ticket ? `Refs ${ticket}` : undefined,
-    });
-    handleCancel(b);
-    body = (b as string) || undefined;
-  }
-
+  const type = requireFlag(opts.type, "type");
+  const summary = requireFlag(opts.message, "message");
   const full = formatCommitMessage({
     type,
-    scope,
-    summary: requireFlag(summary, "message"),
-    body,
+    scope: opts.scope,
+    summary,
+    body: opts.body,
     emojiEnabled: config.commit.emoji.enabled,
     emojiMap: config.commit.emoji.map,
   });
-
-  p.log.info(pc.dim(full));
-  if (!opts.yes && !flagged && !(await confirmOrExit("Create commit?"))) return;
-
-  await commit(full);
+  await withSpinner("Creating commit…", () => commit(full));
   p.log.success("Committed");
-
-  const shouldPush =
-    opts.push === true ||
-    (opts.push === undefined && !opts.yes && !flagged && (await confirmOrExit("Push to remote?", false)));
-
-  if (shouldPush) {
-    await push({ setUpstream: true });
+  if (opts.push) {
+    await withSpinner("Pushing…", () => push({ setUpstream: true }));
     p.log.success("Pushed");
+  }
+}
+
+async function runCommitStepped(opts: CommitOptions, config: ReturnType<typeof loadConfig>): Promise<void> {
+  const order = ["stage", "type", "scope", "summary", "body", "confirm", "push"] as const;
+  let i = 0;
+  let type = opts.type;
+  let scope = opts.scope;
+  let summary = opts.message;
+  let body = opts.body;
+  let full = "";
+
+  while (i >= 0 && i < order.length) {
+    const step = order[i]!;
+    switch (step) {
+      case "stage": {
+        const status = await withSpinner("Reading status…", () => getStatus());
+        if (!(await hasStagedChanges())) {
+          if (opts.all) {
+            await withSpinner("Staging all changes…", () => stageAll());
+          } else if (status.unstaged.length + status.untracked.length > 0) {
+            const ok = await confirmOrBack("Nothing staged. Stage all changes?", true);
+            if (isBack(ok)) return;
+            if (!ok) {
+              p.log.info("Aborted.");
+              return;
+            }
+            await withSpinner("Staging all changes…", () => stageAll());
+          }
+        }
+        if (!(await hasStagedChanges())) throw new Error("Nothing to commit.");
+        i++;
+        break;
+      }
+      case "type": {
+        if (opts.type) {
+          type = opts.type;
+          i++;
+          break;
+        }
+        const c = await pick({
+          message: "Commit type",
+          options: config.commit.types.map((t) => ({ value: t, label: t })),
+        });
+        if (isBack(c)) {
+          i--;
+          if (i < 0) return;
+          break;
+        }
+        type = c as string;
+        i++;
+        break;
+      }
+      case "scope": {
+        if (opts.message !== undefined && opts.scope !== undefined) {
+          i++;
+          break;
+        }
+        if (opts.message) {
+          // flagged summary path skips optional scope when provided via flags only
+        }
+        const s = await textOrBack({ message: "Scope (optional)", placeholder: "ui" });
+        if (isBack(s)) {
+          i--;
+          break;
+        }
+        scope = s || undefined;
+        i++;
+        break;
+      }
+      case "summary": {
+        if (opts.message) {
+          summary = opts.message;
+          i++;
+          break;
+        }
+        const s = await textOrBack({
+          message: "Commit summary",
+          validate: (v) => (v?.trim() ? undefined : "Required"),
+        });
+        if (isBack(s)) {
+          i--;
+          break;
+        }
+        summary = s;
+        i++;
+        break;
+      }
+      case "body": {
+        if (opts.body !== undefined) {
+          body = opts.body;
+          i++;
+          break;
+        }
+        const branch = await currentBranch();
+        const ticket = extractTicket(branch, config.branch.ticketPattern);
+        const b = await textOrBack({
+          message: "Body (optional)",
+          placeholder: ticket ? `Refs ${ticket}` : undefined,
+        });
+        if (isBack(b)) {
+          i--;
+          break;
+        }
+        body = b || undefined;
+        i++;
+        break;
+      }
+      case "confirm": {
+        full = formatCommitMessage({
+          type: requireFlag(type, "type"),
+          scope,
+          summary: requireFlag(summary, "message"),
+          body,
+          emojiEnabled: config.commit.emoji.enabled,
+          emojiMap: config.commit.emoji.map,
+        });
+        p.log.info(pc.dim(full));
+        const ok = await confirmOrBack("Create commit?", true);
+        if (isBack(ok)) {
+          i--;
+          break;
+        }
+        if (!ok) {
+          p.log.info("Aborted.");
+          return;
+        }
+        await withSpinner("Creating commit…", () => commit(full));
+        p.log.success("Committed");
+        i++;
+        break;
+      }
+      case "push": {
+        if (opts.push === true) {
+          await withSpinner("Pushing…", () => push({ setUpstream: true }));
+          p.log.success("Pushed");
+          return;
+        }
+        if (opts.push === false) return;
+        const ok = await confirmOrBack("Push to remote?", false);
+        if (isBack(ok)) {
+          i--;
+          break;
+        }
+        if (ok) {
+          await withSpinner("Pushing…", () => push({ setUpstream: true }));
+          p.log.success("Pushed");
+        }
+        return;
+      }
+    }
   }
 }
 

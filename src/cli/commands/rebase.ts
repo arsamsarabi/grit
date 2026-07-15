@@ -4,7 +4,8 @@ import { loadConfig } from "@/config/loader.ts";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { push } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrExit, handleCancel, printError } from "@/tui/prompts.ts";
+import { confirmOrBack, isBack, printError, textOrBack } from "@/tui/prompts.ts";
+import { withSpinner } from "@/tui/spinner.ts";
 
 export type RebaseOptions = {
   onto?: string;
@@ -19,43 +20,50 @@ export async function runRebase(opts: RebaseOptions): Promise<void> {
 
   let onto = opts.onto;
   if (!onto) {
-    const choice = await pick({
-      message: "Rebase onto",
-      options: [
-        { value: config.rebase.defaultUpstream, label: config.rebase.defaultUpstream },
-        { value: "origin/main", label: "origin/main" },
-        { value: "upstream/main", label: "upstream/main" },
-        { value: "__custom__", label: "Custom…" },
-      ],
-    });
-    handleCancel(choice);
-    if (choice === "__custom__") {
-      const custom = await p.text({
-        message: "Upstream ref",
-        placeholder: "origin/develop",
-        validate: (v) => (v?.trim() ? undefined : "Required"),
+    for (;;) {
+      const choice = await pick({
+        message: "Rebase onto",
+        options: [
+          { value: config.rebase.defaultUpstream, label: config.rebase.defaultUpstream },
+          { value: "origin/main", label: "origin/main" },
+          { value: "upstream/main", label: "upstream/main" },
+          { value: "__custom__", label: "Custom…" },
+        ],
       });
-      handleCancel(custom);
-      onto = custom as string;
-    } else {
-      onto = choice as string;
+      if (isBack(choice)) return;
+      if (choice === "__custom__") {
+        const custom = await textOrBack({
+          message: "Upstream ref",
+          placeholder: "origin/develop",
+          validate: (v) => (v?.trim() ? undefined : "Required"),
+        });
+        if (isBack(custom)) continue;
+        onto = custom;
+      } else {
+        onto = choice as string;
+      }
+      break;
     }
   }
 
   const remote = onto.split("/")[0];
   if (remote === "origin" || remote === "upstream") {
-    p.log.step(`Fetching ${remote}…`);
-    await git(["fetch", remote]);
+    await withSpinner(`Fetching ${remote}…`, () => git(["fetch", remote]));
   }
 
-  if (!opts.yes && !(await confirmOrExit(`Rebase onto ${pc.cyan(onto)}?`))) return;
+  if (!opts.yes) {
+    const ok = await confirmOrBack(`Rebase onto ${pc.cyan(onto)}?`, true);
+    if (isBack(ok)) return;
+    if (!ok) {
+      p.log.info("Aborted.");
+      return;
+    }
+  }
 
   const args = ["rebase"];
-  if (opts.interactive) {
-    args.push("-i");
-  }
+  if (opts.interactive) args.push("-i");
   args.push(onto);
-  await git(args);
+  await withSpinner(`Rebasing onto ${onto}…`, () => git(args));
   p.log.success(`Rebased onto ${onto}`);
 
   let force = opts.forcePush;
@@ -63,13 +71,15 @@ export async function runRebase(opts: RebaseOptions): Promise<void> {
     if (opts.yes) {
       force = false;
     } else if (config.rebase.confirmForcePush) {
-      force = await confirmOrExit("Force-push with lease to origin?", false);
+      const ok = await confirmOrBack("Force-push with lease to origin?", false);
+      if (isBack(ok)) return;
+      force = ok;
     } else {
       force = false;
     }
   }
   if (force) {
-    await push({ force: true });
+    await withSpinner("Force-pushing…", () => push({ force: true }));
     p.log.success("Force-pushed (--force-with-lease)");
   }
 }

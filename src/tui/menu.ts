@@ -12,15 +12,15 @@ import { runStashInteractive } from "@/cli/commands/stash.ts";
 import { runStatus } from "@/cli/commands/status.ts";
 import { runWorktreeInteractive } from "@/cli/commands/worktree.ts";
 import { pick } from "@/tui/pick.ts";
-import { handleCancel } from "@/tui/prompts.ts";
+import { exitOnCancel } from "@/tui/prompts.ts";
 
 export async function runMainMenu(): Promise<void> {
   p.intro(pc.bgMagenta(pc.black(" grit ")));
 
-  // Loop until quit
   for (;;) {
     const choice = await pick({
       message: "What do you want to do?",
+      back: false,
       options: [
         { value: "status", label: "Status", hint: "repo dashboard" },
         { value: "branch", label: "Branch", hint: "new / checkout / delete" },
@@ -36,7 +36,7 @@ export async function runMainMenu(): Promise<void> {
         { value: "quit", label: "Quit" },
       ],
     });
-    handleCancel(choice);
+    exitOnCancel(choice);
 
     switch (choice) {
       case "status":
