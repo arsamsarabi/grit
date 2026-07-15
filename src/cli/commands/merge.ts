@@ -3,7 +3,7 @@ import pc from "picocolors";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { getBranches } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
+import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, showNoteAndContinue } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 export type MergeOptions = {
@@ -28,9 +28,9 @@ export async function runMerge(opts: MergeOptions): Promise<void> {
             i++;
             break;
           }
-          const branches = await withSpinner("Loading branches…", () => getBranches());
+          const branches = await withSpinner("Loading branches...", () => getBranches());
           if (branches.length === 0) {
-            sayEmpty("No branches to merge.");
+            await showNoteAndContinue("Merge", "No branches to merge.");
             return;
           }
           const choice = await pick({

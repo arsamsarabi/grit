@@ -8,7 +8,7 @@ import { createPr, getPrForBranch, isGhAvailable } from "@/gh/client.ts";
 import { assertGitRepo, currentBranch } from "@/git/client.ts";
 import { getLog } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, confirmOrExit, isBack, printError, textOrBack } from "@/tui/prompts.ts";
+import { confirmOrBack, confirmOrExit, isBack, printError, showNoteAndContinue, textOrBack } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 function readPrTemplate(cwd: string): string {
@@ -129,32 +129,46 @@ export async function runPrCreate(opts: PrCreateOptions = {}): Promise<void> {
   p.log.success(url);
 }
 
-export async function runPrStatus(): Promise<void> {
+export async function runPrStatus(opts: { pause?: boolean } = {}): Promise<void> {
   await assertGitRepo();
   if (!(await isGhAvailable())) {
     throw new Error("gh is required for PR commands.");
   }
-  const pr = await withSpinner("Loading PR…", () => getPrForBranch());
+  const pr = await withSpinner("Loading PR...", () => getPrForBranch());
   if (!pr) {
-    console.log(pc.dim("No open PR for this branch."));
+    if (opts.pause) {
+      await showNoteAndContinue("Pull request", "No open PR for this branch.");
+    } else {
+      console.log(pc.dim("No open PR for this branch."));
+    }
     return;
   }
-  console.log(`#${pr.number} ${pr.title} (${pr.state})`);
-  console.log(pr.url);
+  const body = `#${pr.number} ${pr.title} (${pr.state})\n${pr.url}`;
+  if (opts.pause) {
+    await showNoteAndContinue("Pull request", body);
+  } else {
+    console.log(`#${pr.number} ${pr.title} (${pr.state})`);
+    console.log(pr.url);
+  }
 }
 
 export async function runPrInteractive(): Promise<void> {
   try {
-    const action = await pick({
-      message: "Pull request",
-      options: [
-        { value: "create", label: "Create" },
-        { value: "status", label: "Status" },
-      ],
-    });
-    if (isBack(action)) return;
-    if (action === "create") await runPrCreate({});
-    else await runPrStatus();
+    for (;;) {
+      const action = await pick({
+        message: "Pull request",
+        options: [
+          { value: "create", label: "Create" },
+          { value: "status", label: "Status" },
+        ],
+      });
+      if (isBack(action)) return;
+      if (action === "create") {
+        await runPrCreate({});
+        continue;
+      }
+      await runPrStatus({ pause: true });
+    }
   } catch (err) {
     printError(err);
   }

@@ -1,19 +1,19 @@
 import * as p from "@clack/prompts";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { pick } from "@/tui/pick.ts";
-import { isBack, printError, sayEmpty, textOrBack } from "@/tui/prompts.ts";
+import { isBack, printError, showNoteAndContinue, textOrBack } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
-export async function stashPush(message?: string): Promise<void> {
+export async function stashPush(message?: string): Promise<"empty" | "ok"> {
   await assertGitRepo();
   const args = ["stash", "push"];
   if (message) args.push("-m", message);
-  const out = await withSpinner("Stashing…", () => git(args));
+  const out = await withSpinner("Stashing...", () => git(args));
   if (/no local changes/i.test(out)) {
-    sayEmpty("Nothing to stash — working tree is clean.");
-    return;
+    return "empty";
   }
   p.log.success("Stashed");
+  return "ok";
 }
 
 export async function stashPop(): Promise<void> {
@@ -28,14 +28,9 @@ export async function stashApply(): Promise<void> {
   p.log.success("Stash applied");
 }
 
-export async function stashList(): Promise<void> {
+export async function stashList(): Promise<string> {
   await assertGitRepo();
-  const out = await withSpinner("Listing stashes…", () => git(["stash", "list"]));
-  if (!out.trim()) {
-    sayEmpty("No stashes.");
-    return;
-  }
-  console.log(out);
+  return (await withSpinner("Listing stashes...", () => git(["stash", "list"]))).trim();
 }
 
 export async function runStashInteractive(): Promise<void> {
@@ -55,19 +50,26 @@ export async function runStashInteractive(): Promise<void> {
       if (action === "push") {
         const msg = await textOrBack({ message: "Message (optional)" });
         if (isBack(msg)) continue;
-        await stashPush(msg || undefined);
-        return;
+        const result = await stashPush(msg || undefined);
+        if (result === "empty") {
+          await showNoteAndContinue("Stash", "Nothing to stash — working tree is clean.");
+        }
+        continue;
       }
       if (action === "pop") {
         await stashPop();
-        return;
+        continue;
       }
       if (action === "apply") {
         await stashApply();
-        return;
+        continue;
       }
-      await stashList();
-      return;
+      const out = await stashList();
+      if (!out) {
+        await showNoteAndContinue("Stashes", "No stashes.");
+      } else {
+        await showNoteAndContinue("Stashes", out);
+      }
     }
   } catch (err) {
     printError(err);

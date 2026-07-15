@@ -3,7 +3,7 @@ import pc from "picocolors";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { getLog } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, sayEmpty } from "@/tui/prompts.ts";
+import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, showNoteAndContinue } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 export type CherryPickOptions = {
@@ -17,9 +17,9 @@ export async function runCherryPick(opts: CherryPickOptions): Promise<void> {
 
   if (!hash) {
     for (;;) {
-      const entries = await withSpinner("Loading commits…", () => getLog(undefined, 30));
+      const entries = await withSpinner("Loading commits...", () => getLog(undefined, 30));
       if (entries.length === 0) {
-        sayEmpty("No commits to cherry-pick.");
+        await showNoteAndContinue("Cherry-pick", "No commits to cherry-pick.");
         return;
       }
       const choice = await pick({

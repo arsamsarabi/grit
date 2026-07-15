@@ -40,7 +40,7 @@ export async function runMainMenu(): Promise<void> {
 
     switch (choice) {
       case "status":
-        await runStatus({});
+        await runStatus({ pause: true });
         break;
       case "branch":
         await runBranchInteractive();

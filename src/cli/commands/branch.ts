@@ -5,7 +5,15 @@ import { loadConfig } from "@/config/loader.ts";
 import { assertGitRepo } from "@/git/client.ts";
 import { checkoutBranch, createBranch, deleteBranch, getBranches } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, confirmOrExit, isBack, printError, requireFlag, sayEmpty, textOrBack } from "@/tui/prompts.ts";
+import {
+  confirmOrBack,
+  confirmOrExit,
+  isBack,
+  printError,
+  requireFlag,
+  showNoteAndContinue,
+  textOrBack,
+} from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 export type BranchNewOptions = {
@@ -126,9 +134,9 @@ export async function branchCheckout(opts: { name?: string }): Promise<void> {
   await assertGitRepo();
   let name = opts.name;
   if (!name) {
-    const branches = await withSpinner("Loading branches…", () => getBranches(undefined, true));
+    const branches = await withSpinner("Loading branches...", () => getBranches(undefined, true));
     if (branches.length === 0) {
-      sayEmpty("No branches to check out.");
+      await showNoteAndContinue("Checkout", "No branches to check out.");
       return;
     }
     const choice = await pick({
@@ -138,7 +146,7 @@ export async function branchCheckout(opts: { name?: string }): Promise<void> {
     if (isBack(choice)) return;
     name = choice as string;
   }
-  await withSpinner(`Checking out ${name}…`, () => checkoutBranch(name!));
+  await withSpinner(`Checking out ${name}...`, () => checkoutBranch(name!));
   p.log.success(`Checked out ${name}`);
 }
 
@@ -146,9 +154,9 @@ export async function branchDelete(opts: { name?: string; force?: boolean; yes?:
   await assertGitRepo();
   let name = opts.name;
   if (!name) {
-    const branches = await withSpinner("Loading branches…", () => getBranches());
+    const branches = await withSpinner("Loading branches...", () => getBranches());
     if (branches.length === 0) {
-      sayEmpty("No branches to delete.");
+      await showNoteAndContinue("Delete", "No branches to delete.");
       return;
     }
     for (;;) {
@@ -170,26 +178,28 @@ export async function branchDelete(opts: { name?: string; force?: boolean; yes?:
   } else if (!opts.yes) {
     if (!(await confirmOrExit(`Delete ${pc.red(name)}?`, false))) return;
   }
-  await withSpinner(`Deleting ${name}…`, () => deleteBranch(name!, { force: opts.force }));
+  await withSpinner(`Deleting ${name}...`, () => deleteBranch(name!, { force: opts.force }));
   p.log.success(`Deleted ${name}`);
 }
 
 export async function runBranchInteractive(): Promise<void> {
-  const action = await pick({
-    message: "Branch",
-    options: [
-      { value: "new", label: "New branch" },
-      { value: "checkout", label: "Checkout" },
-      { value: "delete", label: "Delete" },
-    ],
-  });
-  if (isBack(action)) return;
-  try {
-    if (action === "new") await branchNew({});
-    else if (action === "checkout") await branchCheckout({});
-    else await branchDelete({});
-  } catch (err) {
-    printError(err);
+  for (;;) {
+    const action = await pick({
+      message: "Branch",
+      options: [
+        { value: "new", label: "New branch" },
+        { value: "checkout", label: "Checkout" },
+        { value: "delete", label: "Delete" },
+      ],
+    });
+    if (isBack(action)) return;
+    try {
+      if (action === "new") await branchNew({});
+      else if (action === "checkout") await branchCheckout({});
+      else await branchDelete({});
+    } catch (err) {
+      printError(err);
+    }
   }
 }
 

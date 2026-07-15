@@ -1,6 +1,7 @@
 import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { BACK, isBack, type Back } from "@/tui/nav.ts";
+import { pick } from "@/tui/pick.ts";
 
 export function handleCancel(value: unknown): void {
   if (p.isCancel(value)) {
@@ -17,6 +18,21 @@ export function exitOnCancel(value: unknown): void {
 /** Always acknowledge an empty result so the CLI never goes silent. */
 export function sayEmpty(message: string): void {
   console.log(pc.dim(message));
+}
+
+/** Show a persistent note, then wait for Enter (Continue) so the user can read it. */
+export async function showNoteAndContinue(title: string, body: string): Promise<void> {
+  p.note(body, title);
+  await pauseForContinue();
+}
+
+/** Pause after scrolled output (status/log) so the main menu doesn’t flash back. */
+export async function pauseForContinue(message = "Continue"): Promise<void> {
+  await pick({
+    message,
+    options: [{ value: "ok", label: "OK" }],
+    back: false,
+  });
 }
 
 /**
