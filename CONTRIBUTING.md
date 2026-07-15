@@ -83,7 +83,7 @@ A good bug report includes:
 - What you expected vs what happened
 - Logs or screenshots if they’re useful
 
-Security-sensitive reports: please don’t open a public issue with exploit details. Prefer contacting the maintainer via GitHub (see [CODEOWNERS](./.github/CODEOWNERS)).
+Security-sensitive reports: see [SECURITY.md](./SECURITY.md) — don’t open a public issue with exploit details.
 
 ## Docs and publishing
 

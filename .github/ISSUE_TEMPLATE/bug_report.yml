@@ -1,0 +1,65 @@
+name: Bug report
+description: Something isn’t working the way you expect
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Search [existing issues](https://github.com/arsamsarabi/grit/issues) first.
+        **Security issues:** use [SECURITY.md](https://github.com/arsamsarabi/grit/blob/main/SECURITY.md) — don’t file them here.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A short summary of the problem.
+      placeholder: When I run …, grit does … instead of …
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Steps to reproduce
+      description: Minimal steps or commands that trigger it.
+      placeholder: |
+        1. `arsams-grit status`
+        2. …
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: grit version
+      description: Output of `arsams-grit --version` (or npm package version).
+      placeholder: 0.2.0
+    validations:
+      required: true
+
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: OS and Bun version (`bun --version`).
+      placeholder: macOS 15 · bun 1.2.x
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Optional — paste relevant output (redact secrets).
+      render: shell
+    validations:
+      required: false
