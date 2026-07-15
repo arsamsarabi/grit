@@ -1,37 +1,28 @@
 import * as p from "@clack/prompts";
 
 export type SpinnerOpts = {
-  /** Final message on success (default: strip trailing … from start message). */
+  /** Shown when the task finishes successfully. */
   successMessage?: string;
-  /** Final message on failure before rethrow. */
-  errorMessage?: string;
-  /** Show elapsed time (default true) — clearer during long git hooks. */
-  timer?: boolean;
 };
 
-/** Run work under a clack spinner (stderr + timer so hooks don't wipe it). */
+/**
+ * Waiting UI for async work.
+ * - `log.step` stays in the scrollback (survives hook spam)
+ * - `tasks` animates on stdout like the rest of the TUI
+ */
 export async function withSpinner<T>(message: string, fn: () => Promise<T>, opts: SpinnerOpts = {}): Promise<T> {
-  const s = p.spinner({
-    indicator: opts.timer === false ? "dots" : "timer",
-    // Keep off stdout so git/husky/lint-staged TTY noise fights the spinner less.
-    output: process.stderr,
-  });
-  s.start(message);
-  try {
-    const result = await fn();
-    s.stop(opts.successMessage ?? doneLabel(message));
-    return result;
-  } catch (err) {
-    s.error(opts.errorMessage ?? "Failed");
-    throw err;
-  }
-}
+  const title = message.replace(/\u2026/g, "...").replace(/\.+$/, "");
+  p.log.step(title);
 
-function doneLabel(message: string): string {
-  return (
-    message
-      .replace(/\u2026$/, "")
-      .replace(/\.\.\.$/, "")
-      .trim() || "Done"
-  );
+  let value!: T;
+  await p.tasks([
+    {
+      title,
+      task: async () => {
+        value = await fn();
+        return opts.successMessage ?? `${title} done`;
+      },
+    },
+  ]);
+  return value;
 }
