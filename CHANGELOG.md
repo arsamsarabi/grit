@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.2.1
+
+### Patch Changes
+
+- 8b20b19: fix ci
+
 ## 0.2.0
 
 ### Minor Changes
