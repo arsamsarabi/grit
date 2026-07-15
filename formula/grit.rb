@@ -1,20 +1,8 @@
-# typed Homebrew formula for @arsams/grit
-#
-# Install from a personal tap:
-#   brew tap arsamsarabi/tap
-#   brew install grit
-#
-# Or directly:
-#   brew install arsamsarabi/tap/grit
-#
-# NOTE: This formula expects release assets. Until the first GitHub Release
-# exists, prefer: bun add -g @arsams/grit
-
 class Grit < Formula
   desc "Opinionated Git assistant — interactive TUI and scriptable CLI"
   homepage "https://github.com/arsamsarabi/grit"
-  # Update url/sha on release; for now install via npm/bun is recommended
-  version "0.1.0"
+  url "https://registry.npmjs.org/@arsams/grit/-/grit-0.1.1.tgz"
+  sha256 "3b57178639f1ff6029d17969bf2db8c050d8b31d4f262e3df8bb263d2f2b3d92"
   license "MIT"
 
   depends_on "bun"
@@ -22,23 +10,23 @@ class Grit < Formula
   depends_on "gh" => :recommended
 
   def install
-    system "bun", "install", "--frozen-lockfile"
-    # Runtime: wrap arsams-grit
+    # npm pack layout is under package/; Homebrew cds into it.
+    libexec.install "bin", "src", "package.json", "LICENSE", "README.md", "CHANGELOG.md"
+
     (bin/"arsams-grit").write <<~EOS
       #!/bin/bash
-      exec bun "#{prefix}/src/index.ts" "$@"
+      exec "#{Formula["bun"].opt_bin}/bun" "#{libexec}/src/index.ts" "$@"
     EOS
-    prefix.install "src", "package.json", "LICENSE", "README.md"
   end
 
   def caveats
     <<~EOS
-      The binary is installed as arsams-grit to avoid colliding with GritQL.
-      Run `arsams-grit init` to choose a shell alias (grit / g / gg).
+      Installed as arsams-grit. Run `arsams-grit init` to choose a shell alias
+      (e.g. grit / g / gg) if you want a shorter command.
     EOS
   end
 
   test do
-    assert_match "0.1.0", shell_output("#{bin}/arsams-grit --version")
+    assert_match version.to_s, shell_output("#{bin}/arsams-grit --version")
   end
 end

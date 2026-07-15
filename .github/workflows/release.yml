@@ -13,6 +13,8 @@ jobs:
       contents: write
       id-token: write # required for npm Trusted Publisher (OIDC)
       pull-requests: write
+    outputs:
+      published: ${{ steps.changesets.outputs.published }}
     steps:
       - uses: actions/checkout@v4
 
@@ -32,6 +34,7 @@ jobs:
       - run: bun install --frozen-lockfile
 
       - name: Create Release Pull Request or Publish
+        id: changesets
         uses: changesets/action@v1
         with:
           # changeset publish → npm publish (OIDC; no NPM_TOKEN)
@@ -41,3 +44,34 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Provenance only in CI (OIDC). Do not set in package.json — local publish fails.
           NPM_CONFIG_PROVENANCE: "true"
+
+  homebrew:
+    name: Bump Homebrew formula
+    needs: release
+    if: needs.release.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+
+      - name: Update Formula/grit.rb from npm
+        run: bun run scripts/sync-homebrew-formula.ts
+
+      - name: Commit formula bump
+        run: |
+          if git diff --quiet Formula/grit.rb; then
+            echo "Formula already up to date"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/grit.rb
+          git commit -m "chore: bump Homebrew formula to $(node -p "require('./package.json').version")"
+          git push

@@ -25,7 +25,7 @@ Then run first-time setup:
 arsams-grit init
 ```
 
-`init` checks for `git` / `gh`, resolves PATH conflicts for the `grit` name (e.g. vs GritQL), writes your shell alias, and creates `~/.config/grit/config.json`.
+`init` checks for `git` / `gh`, lets you pick a shell alias (and avoids clobbering an existing command on PATH), and creates `~/.config/grit/config.json`.
 
 ### Homebrew
 
@@ -123,11 +123,19 @@ bun run src/index.ts --help
 bun run compile   # produce dist/arsams-grit binary
 ```
 
-Publishing to npm (Trusted Publisher + Changesets): see [docs/npm-publishing.md](./docs/npm-publishing.md).
+Publishing (npm + Homebrew via CI): see [docs/publishing.md](./docs/publishing.md).
+
+### Homebrew
+
+```bash
+brew tap arsamsarabi/grit https://github.com/arsamsarabi/grit
+brew install grit
+arsams-grit --help
+```
 
 ## Why arsams-grit?
 
-The short name `grit` is already used by [GritQL](https://docs.grit.io/). This package ships as `arsams-grit` and lets you pick a conflict-free shell alias during `init`.
+The installed binary is `arsams-grit`. During `init` you can add a short shell alias (`grit`, `g`, `gg`, or custom) if that name is free on your PATH.
 
 ## License
 
