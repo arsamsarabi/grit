@@ -123,6 +123,8 @@ bun run src/index.ts --help
 bun run compile   # produce dist/arsams-grit binary
 ```
 
+Publishing to npm (Trusted Publisher + Changesets): see [docs/npm-publishing.md](./docs/npm-publishing.md).
+
 ## Why arsams-grit?
 
 The short name `grit` is already used by [GritQL](https://docs.grit.io/). This package ships as `arsams-grit` and lets you pick a conflict-free shell alias during `init`.
