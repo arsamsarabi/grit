@@ -15,7 +15,7 @@ This is the normal path after Trusted Publisher works.
 
 Do **not** bump `package.json` version by hand.
 
-Preferred flow: add the changeset **on the same feature branch / PR** as the code change, then merge that PR into `main`. You can also add a changeset afterward on `main`, but keeping it with the feature PR is clearer and harder to forget.
+Preferred flow: add the changeset **on the same feature branch / PR** as the code change, then merge into `main`. Pushing a changeset **straight to `main`** is also fine — the Release workflow runs either way. Keeping it with a feature PR is mainly so the bump is hard to forget alongside the code.
 
 ### Step 2 — Add a changeset
 
