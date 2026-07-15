@@ -1,0 +1,2 @@
+# Normalize line endings so Prettier (endOfLine: lf) matches on Windows CI.
+* text=auto eol=lf
