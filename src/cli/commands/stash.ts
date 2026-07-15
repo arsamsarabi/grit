@@ -1,5 +1,6 @@
 import * as p from "@clack/prompts";
 import { assertGitRepo, git } from "../../git/client.ts";
+import { pick } from "../../tui/pick.ts";
 import { handleCancel, printError, sayEmpty } from "../../tui/prompts.ts";
 
 export async function stashPush(message?: string): Promise<void> {
@@ -39,7 +40,7 @@ export async function stashList(): Promise<void> {
 
 export async function runStashInteractive(): Promise<void> {
   try {
-    const action = await p.select({
+    const action = await pick({
       message: "Stash",
       options: [
         { value: "push", label: "Save (push)" },

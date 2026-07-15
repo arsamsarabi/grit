@@ -2,6 +2,7 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { assertGitRepo, git } from "../../git/client.ts";
 import { getLog } from "../../git/ops.ts";
+import { pick } from "../../tui/pick.ts";
 import {
   confirmOrExit,
   handleCancel,
@@ -24,7 +25,7 @@ export async function runCherryPick(opts: CherryPickOptions): Promise<void> {
       sayEmpty("No commits to cherry-pick.");
       return;
     }
-    const choice = await p.select({
+    const choice = await pick({
       message: "Cherry-pick commit",
       options: entries.map((e) => ({
         value: e.hash,

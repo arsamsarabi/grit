@@ -4,6 +4,7 @@ import { renderBranchName, slugify } from "../../config/branch-template.ts";
 import { loadConfig } from "../../config/loader.ts";
 import { assertGitRepo } from "../../git/client.ts";
 import { checkoutBranch, createBranch, deleteBranch, getBranches } from "../../git/ops.ts";
+import { pick } from "../../tui/pick.ts";
 import {
   confirmOrExit,
   handleCancel,
@@ -66,7 +67,7 @@ export async function branchNew(opts: BranchNewOptions): Promise<void> {
 }
 
 async function pickType(types: string[]): Promise<string> {
-  const choice = await p.select({
+  const choice = await pick({
     message: "Branch type",
     options: types.map((t) => ({ value: t, label: t })),
   });
@@ -83,7 +84,7 @@ export async function branchCheckout(opts: { name?: string }): Promise<void> {
       sayEmpty("No branches to check out.");
       return;
     }
-    const choice = await p.select({
+    const choice = await pick({
       message: "Checkout branch",
       options: branches.map((b) => ({ value: b, label: b })),
     });
@@ -107,7 +108,7 @@ export async function branchDelete(opts: {
       sayEmpty("No branches to delete.");
       return;
     }
-    const choice = await p.select({
+    const choice = await pick({
       message: "Delete branch",
       options: branches.map((b) => ({ value: b, label: b })),
     });
@@ -120,7 +121,7 @@ export async function branchDelete(opts: {
 }
 
 export async function runBranchInteractive(): Promise<void> {
-  const action = await p.select({
+  const action = await pick({
     message: "Branch",
     options: [
       { value: "new", label: "New branch" },

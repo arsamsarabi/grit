@@ -1,5 +1,6 @@
 import * as p from "@clack/prompts";
 import { assertGitRepo, git } from "../../git/client.ts";
+import { pick } from "../../tui/pick.ts";
 import { handleCancel, printError, requireFlag, sayEmpty } from "../../tui/prompts.ts";
 
 export async function worktreeList(): Promise<void> {
@@ -38,7 +39,7 @@ export async function worktreeRemove(path: string): Promise<void> {
 
 export async function runWorktreeInteractive(): Promise<void> {
   try {
-    const action = await p.select({
+    const action = await pick({
       message: "Worktree",
       options: [
         { value: "list", label: "List" },

@@ -7,6 +7,7 @@ import { loadConfig } from "../../config/loader.ts";
 import { createPr, getPrForBranch, isGhAvailable } from "../../gh/client.ts";
 import { assertGitRepo, currentBranch } from "../../git/client.ts";
 import { getLog } from "../../git/ops.ts";
+import { pick } from "../../tui/pick.ts";
 import { confirmOrExit, handleCancel, printError } from "../../tui/prompts.ts";
 
 function readPrTemplate(cwd: string): string {
@@ -98,7 +99,7 @@ export async function runPrStatus(): Promise<void> {
 
 export async function runPrInteractive(): Promise<void> {
   try {
-    const action = await p.select({
+    const action = await pick({
       message: "Pull request",
       options: [
         { value: "create", label: "Create" },

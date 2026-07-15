@@ -3,6 +3,7 @@ import pc from "picocolors";
 import { ALIAS_CANDIDATES, DEFAULT_EMOJI_MAP, defaultConfig } from "../config/defaults.ts";
 import { writeGlobalConfig } from "../config/loader.ts";
 import type { GritConfigInput } from "../config/schema.ts";
+import { pick } from "../tui/pick.ts";
 import {
   detectShellRc,
   probeAlias,
@@ -75,7 +76,7 @@ export async function runInit(options: InitOptions = {}): Promise<void> {
     }
   }
 
-  const aliasChoice = await p.select({
+  const aliasChoice = await pick({
     message: "Choose a shell alias for grit",
     options: [
       ...ALIAS_CANDIDATES.map((name) => {

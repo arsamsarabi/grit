@@ -11,6 +11,7 @@ import { runReleaseInteractive } from "../cli/commands/release.ts";
 import { runStashInteractive } from "../cli/commands/stash.ts";
 import { runStatus } from "../cli/commands/status.ts";
 import { runWorktreeInteractive } from "../cli/commands/worktree.ts";
+import { pick } from "./pick.ts";
 import { handleCancel } from "./prompts.ts";
 
 export async function runMainMenu(): Promise<void> {
@@ -18,7 +19,7 @@ export async function runMainMenu(): Promise<void> {
 
   // Loop until quit
   for (;;) {
-    const choice = await p.select({
+    const choice = await pick({
       message: "What do you want to do?",
       options: [
         { value: "status", label: "Status", hint: "repo dashboard" },

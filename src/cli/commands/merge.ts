@@ -2,6 +2,7 @@ import * as p from "@clack/prompts";
 import pc from "picocolors";
 import { assertGitRepo, git } from "../../git/client.ts";
 import { getBranches } from "../../git/ops.ts";
+import { pick } from "../../tui/pick.ts";
 import {
   confirmOrExit,
   handleCancel,
@@ -25,7 +26,7 @@ export async function runMerge(opts: MergeOptions): Promise<void> {
       sayEmpty("No branches to merge.");
       return;
     }
-    const choice = await p.select({
+    const choice = await pick({
       message: "Merge branch",
       options: branches.map((b) => ({ value: b, label: b })),
     });

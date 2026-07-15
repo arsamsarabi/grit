@@ -5,6 +5,7 @@ import { formatCommitMessage } from "../../config/commit-message.ts";
 import { loadConfig } from "../../config/loader.ts";
 import { assertGitRepo, currentBranch } from "../../git/client.ts";
 import { commit, getStatus, hasStagedChanges, push, stageAll } from "../../git/ops.ts";
+import { pick } from "../../tui/pick.ts";
 import { confirmOrExit, handleCancel, printError, requireFlag } from "../../tui/prompts.ts";
 
 export type CommitOptions = {
@@ -44,7 +45,7 @@ export async function runCommit(opts: CommitOptions): Promise<void> {
   const type =
     opts.type ??
     ((await (async () => {
-      const c = await p.select({
+      const c = await pick({
         message: "Commit type",
         options: config.commit.types.map((t) => ({ value: t, label: t })),
       });
