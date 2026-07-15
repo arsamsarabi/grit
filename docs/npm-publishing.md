@@ -11,10 +11,10 @@ CI workflow: [`.github/workflows/release.yml`](../.github/workflows/release.yml)
 
 ## Mental model
 
-| Path | When | Auth |
-|------|------|------|
-| **CI (preferred)** | Normal releases after setup | npm Trusted Publisher (OIDC) — no long-lived token |
-| **Local `npm publish`** | First package create, or emergency | Your npm login + 2FA |
+| Path                    | When                               | Auth                                               |
+| ----------------------- | ---------------------------------- | -------------------------------------------------- |
+| **CI (preferred)**      | Normal releases after setup        | npm Trusted Publisher (OIDC) — no long-lived token |
+| **Local `npm publish`** | First package create, or emergency | Your npm login + 2FA                               |
 
 **Provenance** (build attestation) is generated automatically on CI Trusted Publisher publishes. It is **not** enabled in `package.json`, because local `npm publish` fails with `provider: null` if provenance is forced outside CI.
 
@@ -48,13 +48,13 @@ Requirements:
 2. Choose **GitHub Actions**.
 3. Exact values:
 
-   | Field | Value |
-   |-------|--------|
-   | Organization or user | `arsamsarabi` |
-   | Repository | `grit` |
-   | Workflow filename | `release.yml` (filename only) |
-   | Environment | blank (unless you add a GitHub Environment) |
-   | Allowed actions | at least **`npm publish`** |
+   | Field                | Value                                       |
+   | -------------------- | ------------------------------------------- |
+   | Organization or user | `arsamsarabi`                               |
+   | Repository           | `grit`                                      |
+   | Workflow filename    | `release.yml` (filename only)               |
+   | Environment          | blank (unless you add a GitHub Environment) |
+   | Allowed actions      | at least **`npm publish`**                  |
 
 4. Save. npm does **not** validate until the next CI publish — typos show up then.
 
@@ -178,15 +178,15 @@ Never commit long-lived publish tokens into the repo.
 
 ## Troubleshooting
 
-| Symptom | Likely fix |
-|---------|------------|
-| `E404` on `@arsams/grit` PUT | Scope/org `@arsams` missing, or user lacks publish rights |
-| `ENEEDAUTH` in Actions | Trusted Publisher workflow filename mismatch (`release.yml`), wrong repo/owner, or missing `id-token: write` |
-| `provenance … provider: null` | Local publish with provenance forced — remove from `publishConfig`; use CI env only |
-| `bin[…] .ts was invalid and removed` | Point `bin` at `bin/arsams-grit`, not `src/index.ts` |
-| Release workflow “does nothing” | No pending changeset, or Version Packages PR not merged yet |
-| Wrong GitHub account on `git push` | Use `github.com-arsam` SSH host / remote URL |
-| Provenance missing on npm | Private GitHub repo, or publish was local (not OIDC) |
+| Symptom                              | Likely fix                                                                                                   |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------ |
+| `E404` on `@arsams/grit` PUT         | Scope/org `@arsams` missing, or user lacks publish rights                                                    |
+| `ENEEDAUTH` in Actions               | Trusted Publisher workflow filename mismatch (`release.yml`), wrong repo/owner, or missing `id-token: write` |
+| `provenance … provider: null`        | Local publish with provenance forced — remove from `publishConfig`; use CI env only                          |
+| `bin[…] .ts was invalid and removed` | Point `bin` at `bin/arsams-grit`, not `src/index.ts`                                                         |
+| Release workflow “does nothing”      | No pending changeset, or Version Packages PR not merged yet                                                  |
+| Wrong GitHub account on `git push`   | Use `github.com-arsam` SSH host / remote URL                                                                 |
+| Provenance missing on npm            | Private GitHub repo, or publish was local (not OIDC)                                                         |
 
 Official reference: [Trusted publishing for npm packages](https://docs.npmjs.com/trusted-publishers/).
 

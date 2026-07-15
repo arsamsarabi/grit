@@ -1,0 +1,7 @@
+node_modules
+dist
+coverage
+*.tgz
+bun.lock
+.tmp
+.tmp-test-*

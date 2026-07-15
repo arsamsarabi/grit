@@ -55,29 +55,29 @@ grit release --tag v0.2.0
 
 ### Commands
 
-| Command | Description |
-|---------|-------------|
-| `init` | Guided setup |
-| `branch new \| checkout \| delete` | Branch workflows |
-| `commit` | Conventional commits (+ optional emoji) |
-| `status` | Dashboard (ahead/behind, files, PR) |
-| `log` | Recent history |
-| `rebase` | Rebase onto upstream |
-| `stash push \| pop \| apply \| list` | Stash helpers |
-| `merge` | Merge a branch |
-| `cherry-pick` | Cherry-pick a commit |
-| `worktree list \| add \| remove` | Worktrees |
-| `pr create \| status` | GitHub PRs via `gh` |
-| `release` | Tag + GitHub release via `gh` |
+| Command                              | Description                             |
+| ------------------------------------ | --------------------------------------- |
+| `init`                               | Guided setup                            |
+| `branch new \| checkout \| delete`   | Branch workflows                        |
+| `commit`                             | Conventional commits (+ optional emoji) |
+| `status`                             | Dashboard (ahead/behind, files, PR)     |
+| `log`                                | Recent history                          |
+| `rebase`                             | Rebase onto upstream                    |
+| `stash push \| pop \| apply \| list` | Stash helpers                           |
+| `merge`                              | Merge a branch                          |
+| `cherry-pick`                        | Cherry-pick a commit                    |
+| `worktree list \| add \| remove`     | Worktrees                               |
+| `pr create \| status`                | GitHub PRs via `gh`                     |
+| `release`                            | Tag + GitHub release via `gh`           |
 
 ## Configuration
 
 **Precedence:** CLI flags > repo `grit.config.json` > global config
 
-| Platform | Global config path |
-|----------|--------------------|
+| Platform      | Global config path           |
+| ------------- | ---------------------------- |
 | macOS / Linux | `~/.config/grit/config.json` |
-| Windows | `%APPDATA%/grit/config.json` |
+| Windows       | `%APPDATA%/grit/config.json` |
 
 Example:
 
