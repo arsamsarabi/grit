@@ -115,6 +115,8 @@ Commit a `grit.config.json` in your repo to share team conventions.
 
 ## Development
 
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for the full contributor guide.
+
 ```bash
 bun install
 bun test
