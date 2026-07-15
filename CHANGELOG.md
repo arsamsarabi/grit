@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.0
+
+### Minor Changes
+
+- d133383: Homebrew wiring and documentation updates
+- 3b6c3b9: Adds filterable pick helpers
+
 ## 0.1.1
 
 ### Patch Changes
