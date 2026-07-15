@@ -2,11 +2,13 @@ import pc from "picocolors";
 import { getPrForBranch, isGhAvailable } from "@/gh/client.ts";
 import { assertGitRepo } from "@/git/client.ts";
 import { getStatus, lastCommit } from "@/git/ops.ts";
-import { printError } from "@/tui/prompts.ts";
+import { pauseForContinue, printError } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 export type StatusOptions = {
   json?: boolean;
+  /** When true (TUI), wait for OK before returning to the menu. */
+  pause?: boolean;
 };
 
 export async function runStatus(opts: StatusOptions): Promise<void> {
@@ -76,6 +78,8 @@ export async function runStatus(opts: StatusOptions): Promise<void> {
         for (const f of status.untracked) console.log(`  ${pc.red(f.path)}`);
       }
     }
+
+    if (opts.pause) await pauseForContinue();
   } catch (err) {
     printError(err);
     process.exitCode = 1;

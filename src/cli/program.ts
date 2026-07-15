@@ -109,11 +109,16 @@ export function createProgram() {
     .option("--message <msg>", "Message (push)")
     .action(async (action: string, opts) => {
       await wrap(async () => {
-        if (action === "push") await stashPush(opts.message);
-        else if (action === "pop") await stashPop();
+        if (action === "push") {
+          const result = await stashPush(opts.message);
+          if (result === "empty") sayEmpty("Nothing to stash — working tree is clean.");
+        } else if (action === "pop") await stashPop();
         else if (action === "apply") await stashApply();
-        else if (action === "list") await stashList();
-        else throw new Error(`Unknown stash action "${action}". Use: push, pop, apply, list`);
+        else if (action === "list") {
+          const out = await stashList();
+          if (!out) sayEmpty("No stashes.");
+          else console.log(out);
+        } else throw new Error(`Unknown stash action "${action}". Use: push, pop, apply, list`);
       })();
     });
 
@@ -143,8 +148,11 @@ export function createProgram() {
     .option("--new-branch", "Create new branch")
     .action(async (action: string, opts) => {
       await wrap(async () => {
-        if (action === "list") await worktreeList();
-        else if (action === "add") await worktreeAddFromFlags(opts);
+        if (action === "list") {
+          const { lines, text } = await worktreeList();
+          if (lines.length === 0) sayEmpty("No worktrees.");
+          else console.log(text);
+        } else if (action === "add") await worktreeAddFromFlags(opts);
         else if (action === "remove") {
           if (!opts.path) throw new Error("Missing --path");
           await worktreeRemove(opts.path);

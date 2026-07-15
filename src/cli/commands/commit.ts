@@ -6,7 +6,7 @@ import { loadConfig } from "@/config/loader.ts";
 import { assertGitRepo, currentBranch } from "@/git/client.ts";
 import { commit, getStatus, hasStagedChanges, push, stageAll } from "@/git/ops.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, isBack, printError, requireFlag, textOrBack } from "@/tui/prompts.ts";
+import { confirmOrBack, isBack, printError, requireFlag, showNoteAndContinue, textOrBack } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
 export type CommitOptions = {
@@ -96,7 +96,10 @@ async function runCommitStepped(opts: CommitOptions, config: ReturnType<typeof l
             await withSpinner("Staging all changes…", () => stageAll());
           }
         }
-        if (!(await hasStagedChanges())) throw new Error("Nothing to commit.");
+        if (!(await hasStagedChanges())) {
+          await showNoteAndContinue("Commit", "Nothing to commit.");
+          return;
+        }
         i++;
         break;
       }

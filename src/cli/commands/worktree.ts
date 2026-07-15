@@ -1,17 +1,14 @@
 import * as p from "@clack/prompts";
 import { assertGitRepo, git } from "@/git/client.ts";
 import { pick } from "@/tui/pick.ts";
-import { confirmOrBack, isBack, printError, requireFlag, sayEmpty, textOrBack } from "@/tui/prompts.ts";
+import { confirmOrBack, isBack, printError, requireFlag, showNoteAndContinue, textOrBack } from "@/tui/prompts.ts";
 import { withSpinner } from "@/tui/spinner.ts";
 
-export async function worktreeList(): Promise<void> {
+export async function worktreeList(): Promise<{ lines: string[]; text: string }> {
   await assertGitRepo();
-  const out = await withSpinner("Listing worktrees…", () => git(["worktree", "list"]));
-  if (!out.trim()) {
-    sayEmpty("No worktrees.");
-    return;
-  }
-  console.log(out);
+  const text = (await withSpinner("Listing worktrees...", () => git(["worktree", "list"]))).trim();
+  const lines = text ? text.split("\n").filter(Boolean) : [];
+  return { lines, text };
 }
 
 export async function worktreeAdd(opts: { path: string; branch?: string; newBranch?: boolean }): Promise<void> {
@@ -24,13 +21,13 @@ export async function worktreeAdd(opts: { path: string; branch?: string; newBran
   } else {
     args.push(opts.path);
   }
-  await withSpinner("Adding worktree…", () => git(args));
+  await withSpinner("Adding worktree...", () => git(args));
   p.log.success(`Worktree added at ${opts.path}`);
 }
 
 export async function worktreeRemove(path: string): Promise<void> {
   await assertGitRepo();
-  await withSpinner("Removing worktree…", () => git(["worktree", "remove", path]));
+  await withSpinner("Removing worktree...", () => git(["worktree", "remove", path]));
   p.log.success(`Removed worktree ${path}`);
 }
 
@@ -48,8 +45,15 @@ export async function runWorktreeInteractive(): Promise<void> {
       if (isBack(action)) return;
 
       if (action === "list") {
-        await worktreeList();
-        return;
+        const { lines, text } = await worktreeList();
+        if (lines.length === 0) {
+          await showNoteAndContinue("Worktrees", "No worktrees found.");
+        } else if (lines.length === 1) {
+          await showNoteAndContinue("Worktrees", `${text}\n\nOnly the primary checkout — no extra linked worktrees.`);
+        } else {
+          await showNoteAndContinue("Worktrees", text);
+        }
+        continue;
       }
 
       if (action === "add") {
@@ -105,16 +109,25 @@ export async function runWorktreeInteractive(): Promise<void> {
           branch: branch || undefined,
           newBranch: branch ? newBranch : false,
         });
-        return;
+        continue;
       }
 
+      // remove
+      const { lines } = await worktreeList();
+      if (lines.length <= 1) {
+        await showNoteAndContinue(
+          "Remove worktree",
+          "No extra worktrees to remove (only the primary checkout exists)."
+        );
+        continue;
+      }
       const path = await textOrBack({
         message: "Worktree path to remove",
         validate: (v) => (v?.trim() ? undefined : "Required"),
       });
       if (isBack(path)) continue;
       await worktreeRemove(path);
-      return;
+      continue;
     }
   } catch (err) {
     printError(err);
