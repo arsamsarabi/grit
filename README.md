@@ -1,10 +1,33 @@
-# grit
+<p align="center">
+  <img src="./docs/assets/grit.svg" alt="grit" width="720">
+</p>
 
-Opinionated Git assistant.
+<p align="center">
+  <a href="https://www.npmjs.com/package/@arsams/grit"><img src="https://img.shields.io/npm/v/@arsams/grit?style=flat-square&logo=npm" alt="npm version"></a>
+  <a href="https://www.npmjs.com/package/@arsams/grit"><img src="https://img.shields.io/npm/dm/@arsams/grit?style=flat-square&logo=npm" alt="npm downloads"></a>
+  <a href="https://github.com/arsamsarabi/grit/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/arsamsarabi/grit/ci.yml?branch=main&style=flat-square&label=CI" alt="CI status"></a>
+  <a href="./LICENSE"><img src="https://img.shields.io/github/license/arsamsarabi/grit?style=flat-square" alt="MIT license"></a>
+  <a href="https://github.com/arsamsarabi/grit"><img src="https://img.shields.io/badge/Homebrew-arsamsarabi%2Fgrit-FBB040?style=flat-square&logo=homebrew&logoColor=black" alt="Homebrew tap"></a>
+  <a href="https://bun.sh"><img src="https://img.shields.io/badge/built_with-Bun-FBF0DF?style=flat-square&logo=bun&logoColor=black" alt="Built with Bun"></a>
+  <a href="./CONTRIBUTING.md"><img src="https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square" alt="PRs welcome"></a>
+</p>
+
+<p align="center">
+  Opinionated Git assistant with an interactive TUI and scriptable CLI.
+</p>
 
 **Package:** [`@arsams/grit`](https://www.npmjs.com/package/@arsams/grit)  
-**Binary:** `arsams-grit` (alias via `init`)  
-**License:** [MIT](./LICENSE)
+**Binary:** `arsams-grit` (short alias via `init`)
+
+## Demo
+
+Interactive menu with a repo status dashboard:
+
+![grit menu and status](./docs/assets/demo-1.gif)
+
+Guided branch naming and conventional commits:
+
+![grit branch and commit](./docs/assets/demo-2.gif)
 
 ## Install
 
@@ -106,6 +129,10 @@ Example:
 ```
 
 Commit a `grit.config.json` in your repo to share team conventions.
+
+## Project support
+
+grit is a solo-maintained project. Issues and pull requests are welcome, and I’ll respond as time allows.
 
 ## Requirements
 
