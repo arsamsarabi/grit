@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1
+
+### Patch Changes
+
+- bbdc581: Update README file
+
 ## 0.4.0
 
 ### Minor Changes
