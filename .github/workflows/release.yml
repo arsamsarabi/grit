@@ -1,8 +1,17 @@
 name: Release
 
+# Only run when release tooling might do real work — not on every merge to main.
+# - New changesets → open/update Version Packages PR
+# - package.json / CHANGELOG bump → publish to npm
 on:
   push:
     branches: [main]
+    paths:
+      - ".changeset/**"
+      - "package.json"
+      - "CHANGELOG.md"
+      - ".github/workflows/release.yml"
+  workflow_dispatch:
 
 concurrency: ${{ github.workflow }}-${{ github.ref }}
 

@@ -38,6 +38,8 @@ git push
 
 If you created it on a feature branch, merge the PR so the changeset lands on `main`.
 
+The **Release** workflow only runs on `main` when `.changeset/**`, `package.json`, `CHANGELOG.md`, or `release.yml` changed — ordinary feature merges (docs, `src/`, formula-only PRs, etc.) skip it. Use **Actions → Release → Run workflow** if you ever need a manual run.
+
 ### Step 3 — Version Packages PR
 
 After the changeset is on `main`, the **Release** workflow runs [`changesets/action`](https://github.com/changesets/action):
@@ -146,19 +148,20 @@ Prefer CI. Never commit long-lived publish tokens.
 
 ## Troubleshooting
 
-| Symptom                                    | Likely fix                                                                                                                                                    |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `ENEEDAUTH` in Actions                     | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                                                                             |
-| Actions cannot create PRs                  | Enable “Allow GitHub Actions to create and approve pull requests”                                                                                             |
-| Release “does nothing”                     | No pending changeset, or Version PR not merged                                                                                                                |
-| Homebrew formula bump rejected on `main`   | Expected with branch protection — job opens a PR; merge it                                                                                                    |
-| `arsams-grit`: Cannot find module \`@/…\`  | Tap formula must ship (or generate) \`tsconfig.json\` beside \`src/\`; \`brew reinstall arsamsarabi/grit/grit\` after merging the formula fix                 |
-| \`gg\` / alias points at old Cellar path   | Re-run \`arsams-grit init\` after upgrade (alias should target \`/opt/homebrew/bin/arsams-grit\`, not \`Cellar/.../libexec\`)                                 |
-| Homebrew still installs an old version     | \`main\` must ship \`Formula/grit.rb\` (capital F) at the latest npm version; merge the bump PR, then \`brew update && brew reinstall arsamsarabi/grit/grit\` |
-| Homebrew job skipped                       | `published` was false (no npm publish that run)                                                                                                               |
-| `brew install` formula SHA mismatch        | Re-run `bun run sync:homebrew` after npm publish and merge the formula PR                                                                                     |
-| `Refusing to load formula … untrusted tap` | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit`                                               |
-| Provenance / local publish errors          | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                                                                 |
+| Symptom                                          | Likely fix                                                                                                                                                                                |
+| ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `ENEEDAUTH` in Actions                           | Trusted Publisher: workflow must be exactly `release.yml`; need `id-token: write`                                                                                                         |
+| Actions cannot create PRs                        | Enable “Allow GitHub Actions to create and approve pull requests”                                                                                                                         |
+| Release workflow runs on every merge / fails red | Expected before path filter: no changesets → action retries npm publish. Now skipped unless release-related paths changed; merge Version Packages PR to publish, or use workflow_dispatch |
+| Release “does nothing”                           | No pending changeset, or Version PR not merged                                                                                                                                            |
+| Homebrew formula bump rejected on `main`         | Expected with branch protection — job opens a PR; merge it                                                                                                                                |
+| `arsams-grit`: Cannot find module \`@/…\`        | Tap formula must ship (or generate) \`tsconfig.json\` beside \`src/\`; \`brew reinstall arsamsarabi/grit/grit\` after merging the formula fix                                             |
+| \`gg\` / alias points at old Cellar path         | Re-run \`arsams-grit init\` after upgrade (alias should target \`/opt/homebrew/bin/arsams-grit\`, not \`Cellar/.../libexec\`)                                                             |
+| Homebrew still installs an old version           | \`main\` must ship \`Formula/grit.rb\` (capital F) at the latest npm version; merge the bump PR, then \`brew update && brew reinstall arsamsarabi/grit/grit\`                             |
+| Homebrew job skipped                             | `published` was false (no npm publish that run)                                                                                                                                           |
+| `brew install` formula SHA mismatch              | Re-run `bun run sync:homebrew` after npm publish and merge the formula PR                                                                                                                 |
+| `Refusing to load formula … untrusted tap`       | Use `brew install arsamsarabi/grit/grit` (trusts that formula), or `brew trust --formula arsamsarabi/grit/grit`                                                                           |
+| Provenance / local publish errors                | Provenance is CI-only (`NPM_CONFIG_PROVENANCE`); don’t set in `publishConfig`                                                                                                             |
 
 ---
 
