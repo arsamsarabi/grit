@@ -4,6 +4,8 @@ Thanks for wanting to help. grit is a small, opinionated Git assistant — short
 
 You don’t need to be an expert. Bug reports, docs fixes, and good questions count.
 
+grit is a solo-maintained project. Issues and pull requests are welcome, and I’ll respond as time allows.
+
 ## Before you start
 
 - Skim the [README](./README.md) so you know what grit is (and isn’t).
