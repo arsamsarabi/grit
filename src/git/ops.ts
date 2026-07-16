@@ -66,3 +66,78 @@ export async function push(options: { cwd?: string; force?: boolean; setUpstream
   if (options.setUpstream) args.push("-u", "origin", "HEAD");
   await git(args, { cwd: options.cwd });
 }
+
+export async function pull(options: { cwd?: string; rebase?: boolean; autostash?: boolean } = {}): Promise<void> {
+  const args = ["pull"];
+  if (options.rebase) args.push("--rebase");
+  if (options.autostash) args.push("--autostash");
+  await git(args, { cwd: options.cwd });
+}
+
+export async function fetch(
+  options: { cwd?: string; all?: boolean; prune?: boolean; remote?: string } = {}
+): Promise<void> {
+  const args = ["fetch"];
+  if (options.all) args.push("--all");
+  if (options.prune) args.push("--prune");
+  if (options.remote) args.push(options.remote);
+  await git(args, { cwd: options.cwd });
+}
+
+export async function revertCommit(hash: string, options: { cwd?: string; noCommit?: boolean } = {}): Promise<void> {
+  const args = ["revert", hash];
+  if (options.noCommit) args.push("--no-commit");
+  await git(args, { cwd: options.cwd });
+}
+
+export async function resetCommit(
+  options: { cwd?: string; mode?: "soft" | "mixed" | "hard"; target?: string } = {}
+): Promise<void> {
+  const args = ["reset"];
+  if (options.mode === "soft") args.push("--soft");
+  else if (options.mode === "hard") args.push("--hard");
+  else if (options.mode === "mixed") args.push("--mixed");
+  if (options.target) args.push(options.target);
+  else args.push("HEAD~1");
+  await git(args, { cwd: options.cwd });
+}
+
+export async function getTags(cwd?: string): Promise<string[]> {
+  const raw = await git(["tag", "--list"], { cwd });
+  return raw
+    .trim()
+    .split("\n")
+    .filter((t) => t);
+}
+
+export async function createTag(
+  name: string,
+  options: { cwd?: string; message?: string; annotated?: boolean } = {}
+): Promise<void> {
+  const args = ["tag"];
+  if (options.annotated || options.message) {
+    args.push("-a", name);
+    if (options.message) args.push("-m", options.message);
+  } else {
+    args.push(name);
+  }
+  await git(args, { cwd: options.cwd });
+}
+
+export async function deleteTag(name: string, options: { cwd?: string; remote?: boolean } = {}): Promise<void> {
+  await git(["tag", "-d", name], { cwd: options.cwd });
+  if (options.remote) {
+    await git(["push", "origin", `:refs/tags/${name}`], { cwd: options.cwd });
+  }
+}
+
+export async function pushTags(options: { cwd?: string } = {}): Promise<void> {
+  await git(["push", "--tags"], { cwd: options.cwd });
+}
+
+export async function getDiff(options: { cwd?: string; cached?: boolean; stat?: boolean } = {}): Promise<string> {
+  const args = ["diff"];
+  if (options.cached) args.push("--cached");
+  if (options.stat) args.push("--stat");
+  return await git(args, { cwd: options.cwd });
+}

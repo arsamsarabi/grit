@@ -70,8 +70,15 @@ grit status
 grit status --json
 grit branch new --type feat --ticket TRF-123 --slug add-login
 grit commit --all --type feat --message "add login" --push
+grit push --force
+grit pull --rebase
+grit fetch --all --prune
+grit revert --hash abc1234
+grit reset --mode soft
 grit rebase --onto origin/main
 grit stash push --message "wip"
+grit tag create --name v1.0.0 --message "Release v1.0.0"
+grit diff --cached
 grit pr create
 grit release --tag v0.2.0
 ```
@@ -83,13 +90,20 @@ grit release --tag v0.2.0
 | `init`                               | Guided setup                            |
 | `branch new \| checkout \| delete`   | Branch workflows                        |
 | `commit`                             | Conventional commits (+ optional emoji) |
+| `push`                               | Push commits to remote                  |
+| `pull`                               | Pull changes from remote                |
+| `fetch`                              | Fetch from remote                       |
 | `status`                             | Dashboard (ahead/behind, files, PR)     |
 | `log`                                | Recent history                          |
 | `rebase`                             | Rebase onto upstream                    |
+| `revert`                             | Revert a commit (pushed or unpushed)    |
+| `reset`                              | Reset to a previous commit              |
 | `stash push \| pop \| apply \| list` | Stash helpers                           |
 | `merge`                              | Merge a branch                          |
 | `cherry-pick`                        | Cherry-pick a commit                    |
 | `worktree list \| add \| remove`     | Worktrees                               |
+| `diff`                               | Show changes                            |
+| `tag list \| create \| delete`       | Tag management                          |
 | `pr create \| status`                | GitHub PRs via `gh`                     |
 | `release`                            | Tag + GitHub release via `gh`           |
 
