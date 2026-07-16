@@ -1,6 +1,6 @@
 {
   "name": "@arsams/grit",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "description": "An opinionated Git assistant — interactive TUI and scriptable CLI",
   "type": "module",
   "license": "MIT",
