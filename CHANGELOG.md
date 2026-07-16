@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.0
+
+### Minor Changes
+
+- a4dad36: Ship binaries
+
 ## 0.3.3
 
 ### Patch Changes
