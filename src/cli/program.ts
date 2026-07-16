@@ -2,13 +2,20 @@ import { cac } from "cac";
 import { branchCheckout, branchDelete, branchNew } from "@/cli/commands/branch.ts";
 import { runCherryPick } from "@/cli/commands/cherry-pick.ts";
 import { runCommit } from "@/cli/commands/commit.ts";
+import { runDiff } from "@/cli/commands/diff.ts";
+import { runFetch } from "@/cli/commands/fetch.ts";
 import { runLog } from "@/cli/commands/log.ts";
 import { runMerge } from "@/cli/commands/merge.ts";
 import { runPrCreate, runPrStatus } from "@/cli/commands/pr.ts";
+import { runPull } from "@/cli/commands/pull.ts";
+import { runPush } from "@/cli/commands/push.ts";
 import { runRebase } from "@/cli/commands/rebase.ts";
 import { runRelease } from "@/cli/commands/release.ts";
+import { runReset } from "@/cli/commands/reset.ts";
+import { runRevert } from "@/cli/commands/revert.ts";
 import { stashApply, stashList, stashPop, stashPush } from "@/cli/commands/stash.ts";
 import { runStatus } from "@/cli/commands/status.ts";
+import { tagCreate, tagDelete, tagList } from "@/cli/commands/tag.ts";
 import { worktreeAddFromFlags, worktreeList, worktreeRemove } from "@/cli/commands/worktree.ts";
 import { runInit } from "@/init/wizard.ts";
 import { printError, sayEmpty } from "@/tui/prompts.ts";
@@ -185,6 +192,78 @@ export function createProgram() {
     .option("--yes", "Skip confirmation prompts")
     .action(async (opts) => {
       await wrap(() => runRelease(opts))();
+    });
+
+  cli
+    .command("push", "Push commits to remote")
+    .option("--force", "Force push with lease")
+    .option("--upstream", "Set upstream when pushing")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (opts) => {
+      await wrap(() => runPush(opts))();
+    });
+
+  cli
+    .command("pull", "Pull changes from remote")
+    .option("--rebase", "Rebase instead of merge")
+    .option("--autostash", "Automatically stash and unstash")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (opts) => {
+      await wrap(() => runPull(opts))();
+    });
+
+  cli
+    .command("fetch", "Fetch from remote")
+    .option("--all", "Fetch all remotes")
+    .option("--prune", "Prune deleted remote branches")
+    .option("--remote <remote>", "Specific remote to fetch from")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (opts) => {
+      await wrap(() => runFetch(opts))();
+    });
+
+  cli
+    .command("revert", "Revert a commit")
+    .option("--hash <hash>", "Commit hash to revert")
+    .option("--unpushed", "For unpushed commits, reset instead of revert")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (opts) => {
+      await wrap(() => runRevert(opts))();
+    });
+
+  cli
+    .command("reset", "Reset to a previous commit")
+    .option("--mode <mode>", "Reset mode: soft | mixed | hard")
+    .option("--target <target>", "Target commit (default: HEAD~1)")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (opts) => {
+      await wrap(() => runReset(opts))();
+    });
+
+  cli
+    .command("tag <action>", "Tag ops: list | create | delete")
+    .option("--name <name>", "Tag name")
+    .option("--message <message>", "Tag message (create)")
+    .option("--annotated", "Create annotated tag (create)")
+    .option("--push", "Push tags after creation (create)")
+    .option("--remote", "Delete from remote too (delete)")
+    .option("--yes", "Skip confirmation prompts")
+    .action(async (action: string, opts) => {
+      await wrap(async () => {
+        if (action === "list") await tagList({});
+        else if (action === "create") await tagCreate(opts);
+        else if (action === "delete") await tagDelete(opts);
+        else throw new Error(`Unknown tag action "${action}". Use: list, create, delete`);
+      })();
+    });
+
+  cli
+    .command("diff", "Show changes")
+    .option("--cached", "Show staged changes")
+    .option("--staged", "Show staged changes (alias for --cached)")
+    .option("--stat", "Show diffstat instead of full diff")
+    .action(async (opts) => {
+      await wrap(() => runDiff(opts))();
     });
 
   return cli;
