@@ -1,8 +1,8 @@
 class Grit < Formula
   desc "Opinionated Git assistant — interactive TUI and scriptable CLI"
   homepage "https://github.com/arsamsarabi/grit"
-  url "https://registry.npmjs.org/@arsams/grit/-/grit-0.3.3.tgz"
-  sha256 "b423fbe21ae576e664ff6d31a628c9de979e5895c930ba72a037c3d4d123c674"
+  url "https://registry.npmjs.org/@arsams/grit/-/grit-0.4.0.tgz"
+  sha256 "c01ac37225887bb361f7698f39432361b27a528a44c4915969c6bee4e9a7cc75"
   license "MIT"
 
   depends_on "git"
@@ -30,6 +30,6 @@ class Grit < Formula
   def prebuilt_binary
     arch = Hardware::CPU.arm? ? "arm64" : "x64"
     os = OS.mac? ? "darwin" : "linux"
-    "dist/arsams-grit-#{os}-#{arch}"
+    "dist/arsams-grit-" + os + "-" + arch
   end
 end
