@@ -1,9 +1,27 @@
 #!/usr/bin/env bash
-# npm rejects .ts bin paths; this wrapper runs the Bun entrypoint.
+# Prefer prebuilt standalone binary; fall back to Bun + source for local dev.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-if ! command -v bun >/dev/null 2>&1; then
-  echo "arsams-grit requires Bun. Install: https://bun.sh" >&2
-  exit 1
+
+platform_binary() {
+  case "$(uname -s)-$(uname -m)" in
+    Darwin-arm64) echo "arsams-grit-darwin-arm64" ;;
+    Darwin-x86_64) echo "arsams-grit-darwin-x64" ;;
+    Linux-x86_64) echo "arsams-grit-linux-x64" ;;
+    Linux-aarch64 | Linux-arm64) echo "arsams-grit-linux-arm64" ;;
+    *) echo "" ;;
+  esac
+}
+
+name="$(platform_binary)"
+if [ -n "$name" ] && [ -x "$ROOT/dist/$name" ]; then
+  exec "$ROOT/dist/$name" "$@"
 fi
-exec bun "$ROOT/src/index.ts" "$@"
+if [ -x "$ROOT/dist/arsams-grit" ]; then
+  exec "$ROOT/dist/arsams-grit" "$@"
+fi
+if command -v bun >/dev/null 2>&1; then
+  exec bun "$ROOT/src/index.ts" "$@"
+fi
+echo "arsams-grit: no binary for this platform (and Bun is not installed)" >&2
+exit 1

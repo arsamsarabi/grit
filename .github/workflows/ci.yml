@@ -25,3 +25,6 @@ jobs:
         run: bun run typecheck
       - name: Test
         run: bun test
+      - name: Build release binaries
+        if: matrix.os == 'ubuntu-latest'
+        run: bun run build:binaries

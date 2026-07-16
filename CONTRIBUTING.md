@@ -26,14 +26,15 @@ bun install
 
 Useful scripts:
 
-| Command                | What it does                             |
-| ---------------------- | ---------------------------------------- |
-| `bun run src/index.ts` | Run the CLI from source (TUI if no args) |
-| `bun test`             | Run tests                                |
-| `bun run lint`         | ESLint + Prettier check                  |
-| `bun run lint:fix`     | Auto-fix lint/format                     |
-| `bun run typecheck`    | `tsc --noEmit`                           |
-| `bun run compile`      | Build a standalone `dist/arsams-grit`    |
+| Command                  | What it does                                   |
+| ------------------------ | ---------------------------------------------- |
+| `bun run src/index.ts`   | Run the CLI from source (TUI if no args)       |
+| `bun test`               | Run tests                                      |
+| `bun run lint`           | ESLint + Prettier check                        |
+| `bun run lint:fix`       | Auto-fix lint/format                           |
+| `bun run typecheck`      | `tsc --noEmit`                                 |
+| `bun run build:binaries` | Cross-compile standalone binaries into `dist/` |
+| `bun run compile`        | Alias for `build:binaries`                     |
 
 Pre-commit hooks (Husky + lint-staged) format and lint staged files. CI runs the same checks on Ubuntu, macOS, and Windows.
 
