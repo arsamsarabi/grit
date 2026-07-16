@@ -109,9 +109,9 @@ Commit a `grit.config.json` in your repo to share team conventions.
 
 ## Requirements
 
-- [Bun](https://bun.sh) ≥ 1.1 (runtime)
 - `git` on PATH
 - [`gh`](https://cli.github.com) (optional; required for `pr` / `release`)
+- [Bun](https://bun.sh) ≥ 1.1 (development only — published installs ship a standalone binary)
 
 ## Development
 
@@ -122,7 +122,7 @@ bun install
 bun test
 bun run lint
 bun run src/index.ts --help
-bun run compile   # produce dist/arsams-grit binary
+bun run compile   # cross-compile standalone binaries into dist/
 ```
 
 Publishing (npm + Homebrew via CI): see [docs/publishing.md](./docs/publishing.md).

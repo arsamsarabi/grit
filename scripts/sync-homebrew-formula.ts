@@ -45,33 +45,13 @@ function renderFormula(tarball: string, sha256: string): string {
   sha256 "${sha256}"
   license "MIT"
 
-  depends_on "bun"
   depends_on "git"
   depends_on "gh" => :recommended
 
   def install
-    # npm pack layout is under package/; Homebrew cds into it.
-    libexec.install "bin", "src", "package.json", "LICENSE", "README.md", "CHANGELOG.md"
-    libexec.install "tsconfig.json" if File.exist?("tsconfig.json")
-
-    # ponytail: older npm tarballs omitted tsconfig.json; Bun needs @/* paths at runtime.
-    unless (libexec/"tsconfig.json").exist?
-      (libexec/"tsconfig.json").write <<~JSON
-        {
-          "compilerOptions": {
-            "baseUrl": ".",
-            "paths": { "@/*": ["./src/*"] }
-          }
-        }
-      JSON
-    end
-
-    (bin/"arsams-grit").write <<~EOS
-      #!/bin/bash
-      LIBEXEC="#{libexec}"
-      cd "$LIBEXEC" || exit 1
-      exec "#{Formula["bun"].opt_bin}/bun" "src/index.ts" "$@"
-    EOS
+    binary = prebuilt_binary
+    odie "No prebuilt binary for this platform" unless File.exist?(binary)
+    bin.install binary => "arsams-grit"
   end
 
   def caveats
@@ -83,6 +63,14 @@ function renderFormula(tarball: string, sha256: string): string {
 
   test do
     assert_match version.to_s, shell_output("#{bin}/arsams-grit --version")
+  end
+
+  private
+
+  def prebuilt_binary
+    arch = Hardware::CPU.arm? ? "arm64" : "x64"
+    os = OS.mac? ? "darwin" : "linux"
+    "dist/arsams-grit-" + os + "-" + arch
   end
 end
 `;

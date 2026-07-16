@@ -124,7 +124,7 @@ brew upgrade grit
 Controlled by `package.json` `"files"`:
 
 - `bin/` — CLI wrapper
-- `src/` — TypeScript (runs via Bun)
+- `src/` — TypeScript source (dev / fallback; releases ship prebuilt binaries in `dist/`)
 - `LICENSE`, `README.md`, `CHANGELOG.md`
 
 Dry-run: `npm pack --dry-run`
