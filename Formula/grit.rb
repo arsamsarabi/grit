@@ -1,8 +1,8 @@
 class Grit < Formula
   desc "Opinionated Git assistant — interactive TUI and scriptable CLI"
   homepage "https://github.com/arsamsarabi/grit"
-  url "https://registry.npmjs.org/@arsams/grit/-/grit-0.3.2.tgz"
-  sha256 "fe0df43ce536a66f181663cda2485f8909c5fa2c65c20743d9646b6334b8a37f"
+  url "https://registry.npmjs.org/@arsams/grit/-/grit-0.3.3.tgz"
+  sha256 "b423fbe21ae576e664ff6d31a628c9de979e5895c930ba72a037c3d4d123c674"
   license "MIT"
 
   depends_on "bun"
