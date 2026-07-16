@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.3.3
+
+### Patch Changes
+
+- 69996ec: Iron out homebrew issues, and restrict release workflow
+
 ## 0.3.2
 
 ### Patch Changes
