@@ -19,6 +19,7 @@
   "files": [
     "bin",
     "src",
+    "tsconfig.json",
     "LICENSE",
     "README.md",
     "CHANGELOG.md"
@@ -51,6 +52,9 @@
   },
   "engines": {
     "bun": ">=1.1.0"
+  },
+  "imports": {
+    "@/*": "./src/*"
   },
   "keywords": [
     "git",

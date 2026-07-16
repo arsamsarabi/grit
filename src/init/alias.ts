@@ -82,11 +82,19 @@ function escapeRegExp(s: string): string {
   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-export function resolveBinaryPath(): string {
-  // When running via bun, argv[1] is the script path
-  const script = process.argv[1];
-  if (script) {
-    return `bun ${script}`;
+export function resolveBinaryPathForAlias(opts: { argv1?: string; arsamsGritOnPath?: string | null }): string {
+  const { argv1: script, arsamsGritOnPath: installed } = opts;
+  // Homebrew/npm: alias the stable shim, not a versioned Cellar/libexec path.
+  if (installed && script?.includes("/libexec/src/index.ts")) {
+    return installed;
   }
-  return which("arsams-grit") ?? "arsams-grit";
+  if (script?.endsWith(".ts")) return `bun ${script}`;
+  return installed ?? "arsams-grit";
+}
+
+export function resolveBinaryPath(): string {
+  return resolveBinaryPathForAlias({
+    argv1: process.argv[1],
+    arsamsGritOnPath: which("arsams-grit"),
+  });
 }

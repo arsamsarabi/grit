@@ -52,10 +52,25 @@ function renderFormula(tarball: string, sha256: string): string {
   def install
     # npm pack layout is under package/; Homebrew cds into it.
     libexec.install "bin", "src", "package.json", "LICENSE", "README.md", "CHANGELOG.md"
+    libexec.install "tsconfig.json" if File.exist?("tsconfig.json")
+
+    # ponytail: older npm tarballs omitted tsconfig.json; Bun needs @/* paths at runtime.
+    unless (libexec/"tsconfig.json").exist?
+      (libexec/"tsconfig.json").write <<~JSON
+        {
+          "compilerOptions": {
+            "baseUrl": ".",
+            "paths": { "@/*": ["./src/*"] }
+          }
+        }
+      JSON
+    end
 
     (bin/"arsams-grit").write <<~EOS
       #!/bin/bash
-      exec "#{Formula["bun"].opt_bin}/bun" "#{libexec}/src/index.ts" "$@"
+      LIBEXEC="#{libexec}"
+      cd "$LIBEXEC" || exit 1
+      exec "#{Formula["bun"].opt_bin}/bun" "src/index.ts" "$@"
     EOS
   end
 
