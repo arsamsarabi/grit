@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1
+
+### Patch Changes
+
+- 1f053a0: Fix SVG header for README file
+
 ## 1.0.0
 
 ### Major Changes
